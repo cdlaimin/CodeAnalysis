@@ -1,0 +1,1 @@
+const t={key:"v-051518aa",path:"/zh/guide/%E6%9C%8D%E5%8A%A1%E7%AB%AF/deploy_without_migrate.html",title:"",lang:"zh-CN",frontmatter:{},excerpt:"",headers:[],git:{updatedTime:1658118719e3,contributors:[{name:"Kylin",email:"ye_whu170@163.com",commits:1}]},filePathRelative:"zh/guide/\u670D\u52A1\u7AEF/deploy_without_migrate.md"};export{t as data};
