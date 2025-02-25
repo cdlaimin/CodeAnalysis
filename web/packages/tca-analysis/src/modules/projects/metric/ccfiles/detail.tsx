@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022 THL A29 Limited
+// Copyright (c) 2021-2024 THL A29 Limited
 //
 // This source code file is made available under MIT License
 // See LICENSE for details
@@ -27,7 +27,7 @@ const Detail = () => {
   const listRef: any = useRef({});
   const rowHeights = useRef({});
   // const rowRef: any = useRef({});
-  const { org_sid: orgSid, team_name: teamName, repoId, projectId, fileId } = useParams() as any;
+  const { orgSid, teamName, repoId, projectId, fileId } = useParams() as any;
   const [codeFile, setCodeFile] = useState({}) as any;
   const [fileInfo, setFileInfo] = useState({}) as any;
   const [issues, setIssues] = useState({
@@ -109,7 +109,7 @@ const Detail = () => {
 
   // 渲染每行显示
   const rowRenderer = ({ index, style: rowStyle }: any) => {
-    const { lineNum: line, content } = codeFile?.codeContents[index];
+    const { lineNum: line, content } = codeFile?.codeContents[index] || {};
     const rowRef: any = useRef({});
     const language = fileInfo.language ?? codeFile.suffix?.split('.')[1] ?? 'plaintext';
 

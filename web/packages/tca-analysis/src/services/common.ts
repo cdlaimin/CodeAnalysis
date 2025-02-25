@@ -1,31 +1,23 @@
-// Copyright (c) 2021-2022 THL A29 Limited
+// Copyright (c) 2021-2024 THL A29 Limited
 //
 // This source code file is made available under MIT License
 // See LICENSE for details
 // ==============================================================================
 
-/**
- * 公共请求
- */
-import { get, put, post, del } from './index';
+import { get, put, post, del } from '@plat/api';
+import { MAIN_SERVER_API, ANALYSIS_SERVER_API, LOGIN_SERVER_API } from '@src/constant/api';
 
-export const MAIN_SERVER = '/server/main/';
-export const MAIN_SERVER_API = '/server/main/api/v3';
-export const ANALYSIS_SERVER_API = '/server/analysis/api/v3';
-export const ANALYSIS_SERVER_CODEDOG_API = '/api/codedog/analysis/v3/';
-export const LOGIN_SERVER_API = '/server/credential/api/v3';
+export const getBaseURL = (orgSid: string, teamName: string) => `/orgs/${orgSid}/teams/${teamName}`;
 
-export const getBaseURL = (org_sid: string, team_name: string) => `/orgs/${org_sid}/teams/${team_name}`;
+export const getMainBaseURL = (orgSid: string, teamName: string) => `${MAIN_SERVER_API}${getBaseURL(orgSid, teamName)}`;
 
-export const getMainBaseURL = (org_sid: string, team_name: string) => `${MAIN_SERVER_API}${getBaseURL(org_sid, team_name)}`;
-
-export const getAnalysisBaseURL = (org_sid: string, team_name: string) => `${ANALYSIS_SERVER_API}${getBaseURL(org_sid, team_name)}`;
+export const getAnalysisBaseURL = (orgSid: string, teamName: string) => `${ANALYSIS_SERVER_API}${getBaseURL(orgSid, teamName)}`;
 
 /**
  * 获取代码库列表
  * @param query
  */
-export const getRepos = (org_sid: string, team_name: string, query: any) => get(`${MAIN_SERVER_API}/orgs/${org_sid}/teams/${team_name}/repos/`, { ...query, scope: 'all' });
+export const getRepos = (orgSid: string, teamName: string, query: any) => get(`${MAIN_SERVER_API}/orgs/${orgSid}/teams/${teamName}/repos/`, { ...query, scope: 'all' });
 
 /**
  * 根据用户UID获取用户信息
@@ -91,4 +83,4 @@ export const getOrgMembers = (orgSid: string) => get(`${MAIN_SERVER_API}/orgs/${
  * @param teamName
  * @param params
  */
- export const disableProject = (orgSid: string, teamName: string, params: any) => put(`${getMainBaseURL(orgSid, teamName)}/status/`, params);
+export const disableProject = (orgSid: string, teamName: string, params: any) => put(`${getMainBaseURL(orgSid, teamName)}/status/`, params);

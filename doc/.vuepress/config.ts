@@ -1,7 +1,7 @@
 import { defineUserConfig } from '@vuepress/cli'
 import { defaultTheme } from '@vuepress/theme-default'
+import { searchPlugin } from '@vuepress/plugin-search'
 import { navbar, sidebar } from './configs'
-const { searchPlugin } = require('@vuepress/plugin-search')
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -21,6 +21,8 @@ export default defineUserConfig({
     ['meta', { name: 'msapplication-TileColor', content: '#3eaf7c' }],
     ['meta', { name: 'theme-color', content: '#3eaf7c' }],
   ],
+
+  pagePatterns: ['**/*.md', '!.vuepress', '!node_modules', '!old'],
 
   plugins: [
     searchPlugin({
@@ -43,7 +45,7 @@ export default defineUserConfig({
     },
     '/en': {
       lang: 'en-US',
-      title: 'Tencent Code Analysis',
+      title: 'Tencent Cloud Code Analysis',
       description: '用心关注每行代码迭代、助力传承卓越代码文化！',
     },
   },
@@ -73,6 +75,7 @@ export default defineUserConfig({
 
         // sidebar
         sidebar: sidebar.en,
+        sidebarDepth: 1,
 
         // page meta
         editLinkText: 'Edit this page on GitHub',

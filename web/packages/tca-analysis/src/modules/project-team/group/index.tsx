@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022 THL A29 Limited
+// Copyright (c) 2021-2024 THL A29 Limited
 //
 // This source code file is made available under MIT License
 // See LICENSE for details
@@ -6,6 +6,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { t } from '@src/utils/i18n';
 import { Button, Avatar, Row, Col, Modal, Select, message } from 'coding-oa-uikit';
 import PlusCircleIcon from 'coding-oa-uikit/lib/icon/PlusCircle';
 import UserIcon from 'coding-oa-uikit/lib/icon/User';
@@ -13,8 +14,8 @@ import CloseCircleIcon from 'coding-oa-uikit/lib/icon/CloseCircle';
 import { unionWith, isEqual } from 'lodash';
 
 // 项目内
-import { t } from '@src/i18n/i18next';
 import { getUserImgUrl } from '@src/utils';
+import PageHeader from '@tencent/micro-frontend-shared/tdesign-component/page-header';
 import { getTeamMemberRouter } from '@src/utils/getRoutePath';
 
 // 模块内
@@ -24,7 +25,7 @@ import {
   getOrgMembers,
   delProjectTeamMember,
 } from '@src/services/common';
-import s from './style.scss';
+import s from '../style.scss';
 
 const PERM_ENUM = {
   ADMIN: 1,
@@ -33,12 +34,12 @@ const PERM_ENUM = {
 
 const PERM_CHOICES = {
   [PERM_ENUM.ADMIN]: {
-    tit: t('管理员'),
-    desc: t('（具备项目内全部查看、操作权限）'),
+    tit: '管理员',
+    desc: '（具备项目内全部查看、操作权限）',
   },
   [PERM_ENUM.USER]: {
-    tit: t('普通成员'),
-    desc: t('（具备项目内查看、登记代码库、启动分析任务等相关权限）'),
+    tit: '普通成员',
+    desc: '（具备项目内查看、登记代码库、启动分析任务等相关权限）',
   },
 };
 
@@ -62,7 +63,7 @@ const MemberItem = ({ list, role, onAddMemberClick, onRemoveMemberClick }: IMemb
                     icon={<PlusCircleIcon />}
                     onClick={() => onAddMemberClick(role)}
                 >
-                    {t('添加成员')}
+                    添加成员
                 </Button>
             </Col>
             {list.map((userinfo: any) => (
@@ -87,8 +88,9 @@ const MemberItem = ({ list, role, onAddMemberClick, onRemoveMemberClick }: IMemb
 );
 
 const Group = () => {
-  const { org_sid: orgSid, team_name: teamName }: any = useParams();
+  const { orgSid, teamName }: any = useParams();
   const [allUsers, setAllUsers] = useState<Array<any>>([]);
+
   const [members, setMembers] = useState<any>({
     admins: [],
     users: [],
@@ -154,43 +156,45 @@ const Group = () => {
   };
 
   return (
-        <div className="pa-lg">
-            <div className="mb-lg">
-                <h3>{t('项目成员管理')}</h3>
-                <span className=" text-grey-6 fs-12">
-                    注：仅能添加团队内存在的成员，如需邀请成员，进入
-                    <Link to={getTeamMemberRouter(orgSid)}>团队成员管理</Link>页面邀请
-                </span>
-            </div>
-            <Modal
-                title={t('添加成员')}
-                visible={inviteVisb}
-                onOk={onOkHandle}
-                onCancel={() => setInviteVisb(false)}
-            >
-                <Select
-                    mode="multiple"
-                    placeholder={t('团队成员，可多选')}
-                    showSearch
-                    value={form.users}
-                    style={{ width: '100%' }}
-                    options={userOptions}
-                    onChange={onSelectUsersHandle}
-                />
-            </Modal>
-            <MemberItem
-                role={PERM_ENUM.ADMIN}
-                list={members.admins}
-                onAddMemberClick={onAddMemberHandle}
-                onRemoveMemberClick={onRemoveMemberHandle}
-            />
-            <MemberItem
-                role={PERM_ENUM.USER}
-                list={members.users}
-                onAddMemberClick={onAddMemberHandle}
-                onRemoveMemberClick={onRemoveMemberHandle}
-            />
-        </div>
+    <div>
+      <PageHeader
+        title='项目成员管理'
+        description={<span>
+          注：仅能添加团队内存在的成员，如需邀请成员，进入
+          <Link to={getTeamMemberRouter(orgSid)}>团队成员管理</Link>页面邀请
+        </span>}
+      />
+      <Modal
+        title={t('添加成员')}
+        visible={inviteVisb}
+        onOk={onOkHandle}
+        onCancel={() => setInviteVisb(false)}
+      >
+        <Select
+          mode="multiple"
+          placeholder={t('团队成员，可多选')}
+          showSearch
+          value={form.users}
+          style={{ width: '100%' }}
+          options={userOptions}
+          onChange={onSelectUsersHandle}
+        />
+      </Modal>
+      <div className={s.content}>
+        <MemberItem
+          role={PERM_ENUM.ADMIN}
+          list={members.admins}
+          onAddMemberClick={onAddMemberHandle}
+          onRemoveMemberClick={onRemoveMemberHandle}
+        />
+        <MemberItem
+          role={PERM_ENUM.USER}
+          list={members.users}
+          onAddMemberClick={onAddMemberHandle}
+          onRemoveMemberClick={onRemoveMemberHandle}
+        />
+      </div>
+    </div>
   );
 };
 

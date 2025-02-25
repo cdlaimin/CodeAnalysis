@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022 THL A29 Limited
+// Copyright (c) 2021-2024 THL A29 Limited
 //
 // This source code file is made available under MIT License
 // See LICENSE for details
@@ -8,10 +8,10 @@
  * 分支概览代码检查详情
  */
 import React, { ReactNode } from 'react';
+import { t } from '@src/utils/i18n';
 import { Row, Col, Progress } from 'coding-oa-uikit';
 // 项目内
 import s from '../style.scss';
-import { t } from '@src/i18n/i18next';
 import { getMineFormatData } from '../utils';
 
 interface IProps {

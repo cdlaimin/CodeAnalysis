@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-# Copyright (c) 2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -53,8 +53,20 @@ class QuickScanToolLoader(object):
         else:
             tool_tasks = QuickScan.get_scan_tasks(languages, labels, {})
         tool_names = [task['task_name'] for task in tool_tasks]
+
+        custom_tools = []
+        for tool_name in tool_names:
+            try:
+                __import__("tool." + tool_name)
+            except ModuleNotFoundError:
+                # 记录自定义工具列表
+                custom_tools.append(tool_name)
+            except:
+                LogPrinter.exception("encounter error.")
+                pass
+
         LogPrinter.info("Initing other tools ...")
-        ToolLoader(tool_names=tool_names, task_list=tool_tasks, include_common=False).git_load_tools(print_enable=False)
+        ToolLoader(tool_names=tool_names, task_list=tool_tasks, custom_tools=custom_tools, include_common=False).git_load_tools(print_enable=False)
 
 
 if __name__ == '__main__':

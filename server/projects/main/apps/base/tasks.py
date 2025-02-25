@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2021-2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -15,6 +15,7 @@ import logging
 from celery import shared_task
 
 logger = logging.getLogger(__name__)
+
 
 @shared_task
 def server_health_check(file_name):

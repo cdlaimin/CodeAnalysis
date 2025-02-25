@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2021-2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -58,7 +58,7 @@ class TiyanLoginBackend(BaseAuthentication):
         user, _ = User.objects.get_or_create(username=auth_data.get("user_id"))
         codedog_user, _ = CodeDogUser.objects.get_or_create(
             user=user, defaults={"nickname": auth_data.get("nickname", user.username)})
-        codedog_user.latest_login_time = timezone.now()
+        codedog_user.refresh_login_time()
         codedog_user.save()
         return (user, None)
 

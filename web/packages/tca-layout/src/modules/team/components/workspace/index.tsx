@@ -1,26 +1,22 @@
-// Copyright (c) 2021-2022 THL A29 Limited
-//
-// This source code file is made available under MIT License
-// See LICENSE for details
-// ==============================================================================
-
 import React, { useEffect, useState } from 'react';
-import cn from 'classnames';
 import { useParams, Link } from 'react-router-dom';
-import { Tabs, Table } from 'coding-oa-uikit';
+import { filter } from 'lodash';
+import cn from 'classnames';
+import { Table } from 'coding-oa-uikit';
+import { Layout } from 'tdesign-react';
 import AlignLeft from 'coding-oa-uikit/lib/icon/AlignLeft';
 import Clock from 'coding-oa-uikit/lib/icon/Clock';
-import { filter } from 'lodash';
+import { formatDateTime } from '@tencent/micro-frontend-shared/util';
+import { getRepoName } from '@tencent/micro-frontend-shared/tca/util';
+import PageHeader from '@tencent/micro-frontend-shared/tdesign-component/page-header';
 
-import { DEFAULT_PAGER } from '@src/common/constants';
-import { formatDateTime } from '@src/utils/index';
+// 项目内
+import { DEFAULT_PAGER } from '@src/constant';
 import { getRepoRouter, getRepoProjectRouter } from '@src/utils/getRoutePath';
 import { getTeamRepos } from '@src/services/team';
-
 import style from './style.scss';
 
 const { Column } = Table;
-const { TabPane } = Tabs;
 
 const Workspace = () => {
   const { orgSid }: any = useParams();
@@ -33,16 +29,17 @@ const Workspace = () => {
     getListData(pageStart, pageSize);
   }, [orgSid]);
 
+  /** 获取团队代码库列表 */
   const getListData = (offset: number, limit: number) => {
     setLoading(true);
     getTeamRepos(orgSid, { offset, limit })
-      .then((response) => {
+      .then(({ count, results }: any) => {
         setPager({
           pageSize: limit,
           pageStart: offset,
-          count: response.count,
+          count,
         });
-        const activeTeamRepos = filter(response?.results, ['project_team.status',1]);
+        const activeTeamRepos = filter(results, ['project_team.status', 1]);
         setList(activeTeamRepos || []);
       })
       .finally(() => {
@@ -50,18 +47,22 @@ const Workspace = () => {
       });
   };
 
+  /** 翻页 */
   const onChangePageSize = (page: number, pageSize: number) => {
     getListData((page - 1) * pageSize, pageSize);
   };
 
+  /** 变更每页大小 */
   const onShowSizeChange = (current: number, size: number) => {
     getListData(DEFAULT_PAGER.pageStart, size);
   };
 
   return (
-    <Tabs activeKey={'repos'} className={style.workspace}>
-      <TabPane tab="工作台" disabled key="null" />
-      <TabPane tab="代码分析" key="repos">
+    <>
+      <PageHeader title="工作台" tab={{
+        options: [{ label: '代码库', value: 'repos' }],
+      }} />
+      <Layout.Content className='tca-px-lg'>
         <Table
           loading={loading}
           dataSource={list}
@@ -92,7 +93,7 @@ const Workspace = () => {
                     record.id,
                   )}
                 >
-                  {name}
+                  {getRepoName(record)}
                 </Link>
                 <p className={style.repoUrl}>{record.scm_url}</p>
               </>
@@ -166,8 +167,8 @@ const Workspace = () => {
             render={time => time && formatDateTime(time)}
           />
         </Table>
-      </TabPane>
-    </Tabs>
+      </Layout.Content>
+    </>
   );
 };
 

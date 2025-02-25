@@ -1,15 +1,15 @@
-// Copyright (c) 2021-2022 THL A29 Limited
+// Copyright (c) 2021-2024 THL A29 Limited
 //
 // This source code file is made available under MIT License
 // See LICENSE for details
 // ==============================================================================
 
 /**
- * 分支项目入口文件
+ * 分析项目入口文件
  */
 
 import React, { useEffect, useState } from 'react';
-import { Switch, Route, useHistory, useParams } from 'react-router-dom';
+import { Switch, Route, useHistory, useParams, Redirect } from 'react-router-dom';
 import { isEmpty, get } from 'lodash';
 import { useStateStore } from '@src/context/store';
 
@@ -18,14 +18,14 @@ import { getProjectRouter } from '@src/utils/getRoutePath';
 import { getSchemes } from '@src/services/schemes';
 import { getTmplList } from '@src/services/template';
 
-import { BASE_ROUTE_PREFIX, PROJECT_ROUTE_PREFIX } from '@src/common/constants';
+import { BASE_ROUTE_PREFIX, PROJECT_ROUTE_PREFIX } from '@src/constant';
 import Nav from './nav';
 import ProjectList from './project/project-list';
 import FirstModal from './project/first-modal';
 
 const Projects = () => {
   const history = useHistory();
-  const { org_sid: orgSid, team_name: teamName }: any = useParams();
+  const { orgSid, teamName }: any = useParams();
   const { curRepo } = useStateStore();
   const [schemes, setSchemes] = useState([]);
   const [templates, setTemplates] = useState([]);
@@ -56,8 +56,8 @@ const Projects = () => {
   return (
     <div>
       <Repos
-        // orgSid={orgSid}
-        // teamName={teamName}
+        orgSid={orgSid}
+        teamName={teamName}
         callback={(repo: any) => history.push(getProjectRouter(orgSid, teamName, repo.id))
         }
       />
@@ -72,14 +72,15 @@ const Projects = () => {
       <Switch>
         <Route
           exact
-          path={`${BASE_ROUTE_PREFIX}/code-analysis/repos/:repoId?/projects`}
-          render={() => <ProjectList templates={templates} schemes={schemes} />}
+          path={`${BASE_ROUTE_PREFIX}/code-analysis/(project)?/repos/:repoId?/projects`}
+          render={() => <ProjectList templates={templates} schemes={schemes}/>}
         />
         <Route
           path={`${PROJECT_ROUTE_PREFIX}/:tabs`}
           // path={`${BASE_ROUTE_PREFIX}/code-analysis/repos/:repoId?/projects/:projectId?/:tabs`}
           render={() => <Nav templates={templates} allSchemes={schemes} />}
         />
+        <Redirect from={`${BASE_ROUTE_PREFIX}/code-analysis/project/repos/`} to={`${BASE_ROUTE_PREFIX}/code-analysis/project/repos/:repoId?/projects`} />
       </Switch>
     </div>
   );

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2021-2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -21,6 +21,7 @@ from apps.job.models import Job, Task
 from codedog.celery import celery_app
 from util import errcode
 from util.time import localnow
+
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +101,7 @@ def monitor_closing_job():
     logger.info("[PeriodicTasks]开始查询入库中的任务，当前入库中的任务数: %s" % closing_job.count())
     for job in closing_job:
         job = Job.objects.get(id=job.id)
-        if job.save_time() < settings.CLOSING_JOB_TIMEOUT:
+        if job.save_time and job.save_time < settings.CLOSING_JOB_TIMEOUT:
             continue
         logger.info("[PeriodicTasks][Project: %s][Job: %s] job closing timeout" % (
             job.project_id, job.id))

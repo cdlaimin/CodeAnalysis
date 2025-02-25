@@ -9,7 +9,7 @@ import cn from 'classnames';
 import qs from 'qs';
 import { find, isEmpty, toNumber, get } from 'lodash';
 
-import { Steps, Tooltip, Tabs, Tag } from 'coding-oa-uikit';
+import { Steps, Tooltip, Tabs, Tag, Button, message } from 'coding-oa-uikit';
 import ArrowLeft from 'coding-oa-uikit/lib/icon/ArrowLeft';
 import Waiting from 'coding-oa-uikit/lib/icon/Waiting';
 import Success from 'coding-oa-uikit/lib/icon/Success';
@@ -19,8 +19,8 @@ import AttentionRed from 'coding-oa-uikit/lib/icon/AttentionRed';
 import Attention from 'coding-oa-uikit/lib/icon/Attention';
 import CloudDownload from 'coding-oa-uikit/lib/icon/CloudDownload';
 
-import { getProjectRouter, getSchemeRouter } from '@src/utils/getRoutePath';
-import { getScanDetail, getTaskDetail, getLog } from '@src/services/projects';
+import { getProjectRouter, getSchemeBlankRouter } from '@src/utils/getRoutePath';
+import { getScanDetail, getTaskDetail, getLog, cancelScan } from '@src/services/projects';
 import { getQuery, formatDateTime } from '@src/utils';
 
 import Result from './result';
@@ -51,7 +51,7 @@ const PROCESS = {
 const ScanDetail = () => {
   const intervalRef = useRef();
   const history = useHistory();
-  const { org_sid: orgSid, team_name: teamName, repoId, projectId, jobId, scanTab } = useParams() as any;
+  const { orgSid, teamName, repoId, projectId, jobId, scanTab } = useParams() as any;
   const [data, setData] = useState<any>({});
   const [curTask, setCurTask] = useState<any>({});
   const taskRef = useRef() as any; // 存储当前任务的id，解决定时器中的闭包问题 - 获取不到最新的 curTask 值
@@ -105,9 +105,9 @@ const ScanDetail = () => {
     const a = document.createElement('a');
     a.href = decodeURIComponent(url) || '';
     // 替换为前端域名地址
-    let pathname = a.pathname
+    let { pathname } = a;
     if (!pathname.startsWith('/server')) {
-      pathname = `/server${pathname}`
+      pathname = `/server${pathname}`;
     }
     url = `${window.location.origin}${pathname}`;
     const filename = url.substr(url.lastIndexOf('/') + 1);
@@ -248,52 +248,68 @@ const ScanDetail = () => {
     return null;
   };
 
+  /**
+ * 取消分析
+ */
+  const onCancel = () => {
+    cancelScan(orgSid, teamName, repoId, projectId, jobId).then(() => {
+      message.success('任务已取消');
+      getJobDetail();
+    });
+  };
+
   return (
     <div className={style.scanDetail}>
       <div className={style.header}>
-        <span
-          className={style.backIcon}
-          onClick={() => history.push(`${getProjectRouter(
-            orgSid,
-            teamName,
-            repoId,
-            projectId,
-          )}/scan-history`)
-          }
-        >
-          <ArrowLeft />
-        </span>
-        <div className={style.right}>
-          <h2 className={style.title}>
-            任务执行情况
-            <Tag className='ml-sm'>Job ID: {jobId}</Tag>
-            <Tag>Scan ID: {data?.scan_id}</Tag>
-            <a
-              className={style.detailBtn}
-              target='_blank'
-              href={`${getSchemeRouter(
-                orgSid,
-                teamName,
-                repoId,
-                data?.project?.scan_scheme
-              )}/basic`} rel="noreferrer"
-            >查看分析方案</a>
-          </h2>
-          <p className={style.desc}>
-            代码库：{data?.project?.repo_scm_url}
-            <span className='ml-sm'>分支：{data?.project?.branch}</span>
-          </p>
+        <div style={{ display: 'flex' }}>
+          <span
+            className={style.backIcon}
+            onClick={() => history.push(`${getProjectRouter(
+              orgSid,
+              teamName,
+              repoId,
+              projectId,
+            )}/scan-history`)
+            }
+          >
+            <ArrowLeft />
+          </span>
+          <div className={style.right}>
+            <h2 className={style.title}>
+              任务执行情况
+              <Tag style={{ marginLeft: 10 }}>Job ID: {jobId}</Tag>
+              <Tag>Scan ID: {data?.scan_id}</Tag>
+              <a
+                className={style.detailBtn}
+                target='_blank'
+                href={`${getSchemeBlankRouter(
+                  orgSid,
+                  teamName,
+                  repoId,
+                  data?.project?.scan_scheme,
+                )}/basic`} rel="noreferrer"
+              >查看分析方案</a>
+            </h2>
+            <p className={style.desc}>
+              代码库：{data?.project?.repo_scm_url}
+              <span className='ml-sm'>分支：{data?.project?.branch}</span>
+            </p>
+          </div>
         </div>
+        {
+          data.result_code === null && (
+            <Button type="primary" danger onClick={onCancel}>取消分析</Button>
+          )
+        }
       </div>
       <Tabs
         activeKey={scanTab || 'detail'}
-        onChange={(tab: string) =>
-          history.push(`${getProjectRouter(
-            orgSid,
-            teamName,
-            repoId,
-            projectId
-          )}/scan-history/${jobId}/${tab}`)
+        onChange={(tab: string) => history.push(`${getProjectRouter(
+          orgSid,
+          teamName,
+          repoId,
+          projectId,
+        )}/scan-history/${jobId}/${tab}`)
         }
       >
         <Tabs.TabPane tab="执行详情" key="detail">
@@ -418,7 +434,7 @@ const ScanDetail = () => {
                                         ))}
                                       </ul>
                                     </div>
-                                  )}
+                                )}
                                 {item.node?.name && (
                                   <p>执行机器: {item.node.name}</p>
                                 )}

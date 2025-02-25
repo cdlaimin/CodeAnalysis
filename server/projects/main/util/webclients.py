@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2021-2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -17,6 +17,8 @@ from util import errcode
 from util.httpclient import HttpClient
 from util.exceptions import CDErrorBase
 from util.authticket import ServerInternalTicket
+from util.exceptions import CDErrorBase
+from util.httpclient import HttpClient
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +31,10 @@ def ActionWarpper(func):
         result = rsp.data.decode("utf-8")
         # 正常返回
         if 200 <= rsp.status < 300:
-            return json.loads(result)
+            if result:
+                return json.loads(result)
+            else:
+                return result
         else:
             # 其他错误，如请求参数错误
             logger.error(result)
@@ -76,6 +81,10 @@ class BaseClient(object):
     def put(self, path, data):
         return self._session.put(self._get_url(path), json_data=data, headers=self._headers)
 
+    @ActionWarpper
+    def delete(self, path, data):
+        return self._session.delete(self._get_url(path), json_data=data, headers=self._headers)
+
     def api(self, name, data, path_params=None):
         api_def = self._apis.get(name)
         if not api_def:
@@ -92,6 +101,8 @@ class BaseClient(object):
             return self.put(path, data=data)
         elif api_def["method"] == "patch":
             return self.patch(path, data=data)
+        elif api_def["method"] == "delete":
+            return self.delete(path, data=data)
 
 
 class AnalyseClient(BaseClient):
@@ -113,6 +124,10 @@ class AnalyseClient(BaseClient):
                 "path": "api/projects/",
                 "method": "post",
             },
+            "delete_project": {
+                "path": "api/projects/%d/",
+                "method": "delete",
+            },
             "create_scan": {
                 "path": "api/projects/%d/scans/",
                 "method": "post",
@@ -120,6 +135,14 @@ class AnalyseClient(BaseClient):
             "get_overview": {
                 "path": "api/projects/%d/overview/",
                 "method": "get",
+            },
+            'scan_check': {
+                'path': 'api/projects/%d/scans/%d/check/',
+                'method': 'get',
+            },
+            'update_scan': {
+                'path': 'api/projects/%d/scans/%d/info/',
+                'method': 'patch',
             },
             "get_scans": {
                 "path": "api/projects/%d/scans/",
@@ -169,6 +192,8 @@ class AnalyseClient(BaseClient):
             result = self.put(path, data=data)
         elif api_def["method"] == "patch":
             result = self.patch(path, data=data)
+        elif api_def["method"] == "delete":
+            return self.delete(path, data=data)
         else:
             return None
         return self.get_data_from_result(result)

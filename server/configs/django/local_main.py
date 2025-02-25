@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2021-2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -27,8 +27,16 @@ ALLOWED_HOSTS = ["*"]
 # 管理员列表
 ADMINS = []
 
+# Notice：默认的SECRET_KEY仅测试用途，如在正式环境部署请重新生成
+# 生成方式：
+# 步骤一：执行 python 命令
+# 步骤二：输入代码： from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())
+# 步骤三：获取执行输出，拷贝替换下方的SECRET_KEY
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("MAIN_SECRET_KEY", "lh+6y8pyf16bbor*)p=kp=p(cg615+y+5nnin$l(n%os$8z^v%")
+
+# 设置默认主键类型，适配django3.2
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # 数据库配置，可参考django数据库配置
 DATABASES = {
@@ -63,6 +71,11 @@ if SENTRY_DSN:
         dsn=SENTRY_DSN,
         integrations=[DjangoIntegration(), CeleryIntegration()]
     )
+
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+# CodeDog运行环境配置
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+HTTPS_CLONE_FLAG = True if os.environ.get("HTTPS_CLONE_FLAG") == "true" else False
 
 # -*-*-*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*-
 # -*-*-*-*-*-*-*-*-*-*-*-   服务交互配置    -*-*-*-*-*-*-*-*-*-*-*-
@@ -101,10 +114,10 @@ FILE_SERVER = {
 }
 
 # 登录鉴权公钥
+# Notice：默认的公钥仅测试用途，如在正式环境部署请重新生成
 AUTHORIZATION_PUBKEY = """-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDtuJtwo+ZkqAA7ZKNdzcQM1N+r
 anRqpNE+R4MKfzCa4uKURK9z7cG6DQT6ihpdSYw36iaMIRMYUM7SsismpYYe68q3
 98nXivMpCDOeO3VC91Y8DU/9058smPswwr6kYFU/TZIDAUqb+H6T5DSbKnl7WZqx
 UdWbyBDJ9R9QeSy0owIDAQAB
 -----END PUBLIC KEY-----"""
-

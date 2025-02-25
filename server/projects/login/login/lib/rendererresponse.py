@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2021-2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -16,7 +16,6 @@ from rest_framework.renderers import JSONRenderer
 class CustomRenderer(JSONRenderer):
     # 重构render方法
     def render(self, data, accepted_media_type=None, renderer_context=None):
-
         status_code = renderer_context["response"].status_code
         code = 0
         if renderer_context:
@@ -24,7 +23,9 @@ class CustomRenderer(JSONRenderer):
             status = status_code
             if data:
                 if isinstance(data, dict):
-                    msg = data.pop("msg", "success")
+                    msg = data.pop("msg", None)
+                    detail = data.pop("detail", None)
+                    msg = msg or detail or "success"
                     status = data.pop("status", status_code)
                     code = 0
                 elif isinstance(data, list):

@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-# Copyright (c) 2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -14,7 +14,7 @@ import logging
 import tempfile
 
 from node.app import settings
-from task.basic.zipmgr import Zip
+from util.zipmgr import Zip
 from util.exceptions import TransferModuleError
 from util.pathlib import PathMgr
 from util.api.fileserver import RetryFileServer

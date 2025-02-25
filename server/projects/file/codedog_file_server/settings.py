@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (c) 2021-2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -92,11 +92,17 @@ FILE_UPLOAD_HANDLERS = ["django.core.files.uploadhandler.TemporaryFileUploadHand
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
+# 数据库配置
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": PROJECT_PATH / "db.sqlite3",
-    }
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.environ.get("FILE_DB_NAME", "codedog_file"),
+        "USER": os.environ.get("FILE_DB_USER"),
+        "PASSWORD": os.environ.get("FILE_DB_PASSWORD"),
+        "HOST": os.environ.get("FILE_DB_HOST"),
+        "PORT": os.environ.get("FILE_DB_PORT"),
+        "OPTIONS": {"charset":"utf8mb4"},
+    },
 }
 
 # Password validation
@@ -237,6 +243,12 @@ if not DEBUG:
         integrations=[DjangoIntegration()],
         send_default_pii=True
     )
+
+# ==============================================
+# 服务配置
+# ==============================================
+API_TICKET_SALT = os.environ.get("API_TICKET_SALT")
+API_TICKET_TOKEN = os.environ.get("API_TICKET_TOKEN")
 
 # ==============================================
 # 加载本地local.py

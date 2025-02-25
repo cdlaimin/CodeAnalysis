@@ -1,4 +1,4 @@
-// Copyright (c) 2022 THL A29 Limited
+// Copyright (c) 2021-2024 THL A29 Limited
 //
 // This source code file is made available under MIT License
 // See LICENSE for details
@@ -47,13 +47,13 @@ public class StartClient {
                     + " --org-sid " + teamId
                     + " --team-name " + projectName
                     + " -s " + localCodePath
-                    + " --branch " + branchName
-                    + " --language " + languageType
+                    + branchName
+                    + languageType
                     + constant_refSchemeID
                     + constant_scanPlan
                     + isTotal;
 
-
+            listener.getLogger().println("run command: " + startCommand);
 
             Process p = Runtime.getRuntime().exec(
                     startCommand,

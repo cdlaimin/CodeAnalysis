@@ -1,11 +1,5 @@
-// Copyright (c) 2021-2022 THL A29 Limited
-//
-// This source code file is made available under MIT License
-// See LICENSE for details
-// ==============================================================================
-
 import isEmpty from 'lodash/isEmpty';
-import { message } from 'coding-oa-uikit';
+import { message } from 'tdesign-react';
 
 import Constant, { DEFAULT_MICRO_FRONTEND_API } from '@src/constant';
 import { getMetaEnv, debug, info, warn } from '@src/utils';
@@ -20,9 +14,6 @@ const MICRO_FRONTEND_API = getMetaEnv(Constant.MICRO_FRONTEND_API, DEFAULT_MICRO
  * 从 API 中加载，需要接口返回 MicroApplicationProps 的数据
  */
 export class MicroApplicationAPILoader implements MicroApplicationLoader {
-  public renderUI: (production?: MicroApplication[]) => null;
-  public exit: () => {};
-
   private url: string;
   constructor() {
     this.url = MICRO_FRONTEND_API;
@@ -45,8 +36,17 @@ export class MicroApplicationAPILoader implements MicroApplicationLoader {
       info('API: 微前端资源配置信息完成加载 ^ _ ^');
       return meta;
     } catch (e) {
-      message.error('微前端资源配置信息加载失败，请检查 MICRO_FRONTEND_API', 0);
-      warn('API: 微前端资源配置信息加载失败... (｡ì _ í｡)');
+      // 增加 reload，首次获取失败时默认刷新页面进行一次重试
+      const loadMicroFrontendFailed = 'loadMicroFrontendFailed';
+      const firstRecord = sessionStorage.getItem(loadMicroFrontendFailed);
+      if (!firstRecord) {
+        sessionStorage.setItem(loadMicroFrontendFailed, 'true');
+        window.location.reload();
+        return;
+      }
+      sessionStorage.removeItem(loadMicroFrontendFailed);
+      message.error('微前端资源配置信息加载失败，请刷新页面重试或联系系统管理员', 0);
+      warn('API: 微前端资源配置信息加载失败，请检查 MICRO_FRONTEND_API ... (｡ì _ í｡)');
       throw new Error(e);
     }
   }

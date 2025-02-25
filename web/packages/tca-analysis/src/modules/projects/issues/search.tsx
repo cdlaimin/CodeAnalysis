@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022 THL A29 Limited
+// Copyright (c) 2021-2024 THL A29 Limited
 //
 // This source code file is made available under MIT License
 // See LICENSE for details
@@ -58,7 +58,7 @@ const Search = (props: SearchProps) => {
         file_path: path,
         ci_time_gte: gte,
         ci_time_lte: lte,
-        checkrule_display_name: name,
+        checkrule_real_name: name,
         checkpackage,
       } = initialValues;
 
@@ -156,12 +156,12 @@ const Search = (props: SearchProps) => {
                 onChange={(value: any) => value && onChange('checkpackage', value)}
               />
             </Filter.Item>
-            <Filter.Item name='checkrule_display_name' >
+            <Filter.Item name='checkrule_real_name' >
               <Input.Search
                 size='middle'
                 style={{ width: '160px' }}
                 placeholder='规则名称'
-                onSearch={(value: string) => onChange('checkrule_display_name', value)}
+                onSearch={(value: string) => onChange('checkrule_real_name', value)}
               />
             </Filter.Item>
 

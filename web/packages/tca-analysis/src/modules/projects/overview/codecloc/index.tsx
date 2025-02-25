@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022 THL A29 Limited
+// Copyright (c) 2021-2024 THL A29 Limited
 //
 // This source code file is made available under MIT License
 // See LICENSE for details
@@ -8,12 +8,12 @@
  * 分支概览代码统计详情
  */
 import React, { useState } from 'react';
+import { t } from '@src/utils/i18n';
 import { Radio, Row, Col } from 'coding-oa-uikit';
 import { get, minBy } from 'lodash';
 
 // 项目内
 import s from '../style.scss';
-import { t } from '@src/i18n/i18next';
 import { getClocLineChartData, getClocPieChartData } from '../utils';
 import PieCharts from '@src/components/charts/pie';
 import { Area } from '@ant-design/plots';
@@ -27,10 +27,10 @@ export const CLOC_TYPE = {
 };
 
 export const CLOC_TYPE_TXT = {
-  TOTAL: t('总数'),
-  CODE: t('代码'),
-  COMMENT: t('注释'),
-  BLANK: t('空白'),
+  TOTAL: '总数',
+  CODE: '代码',
+  COMMENT: '注释',
+  BLANK: '空白',
 };
 
 const CLOC_TYPE_OPTIONS = [
@@ -41,9 +41,9 @@ const CLOC_TYPE_OPTIONS = [
 ];
 
 const colors: any = {
-  "代码": "#0066ff",
-  "注释": "#8cc6ff",
-  "空白": "#cceaff",
+  代码: '#0066ff',
+  注释: '#8cc6ff',
+  空白: '#cceaff',
 };
 
 interface IProps {
@@ -72,9 +72,7 @@ const CodeCloc = ({ clocScans }: IProps) => {
               <PieCharts
                 data={clocPieData}
                 confs={{
-                  color: ({ type }) => {
-                    return colors[type] || "#0066ff";
-                  }
+                  color: ({ type }) => colors[type] || '#0066ff',
                 }}
               />
             ) : (
@@ -105,10 +103,10 @@ const CodeCloc = ({ clocScans }: IProps) => {
                     line: {
                       style: {
                         stroke: '#e6e9ed',
-                        lineDash: [3, 2]
-                      }
-                    }
-                  }
+                        lineDash: [3, 2],
+                      },
+                    },
+                  },
                 }}
               />
             ) : (

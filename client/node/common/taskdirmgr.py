@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-# Copyright (c) 2021-2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -40,7 +40,7 @@ class TaskDirCtl(object):
                     suffix_no += 1
                 task_dir = os.path.join(self._task_dirs_root, f"{dirname_prefix}{task_id}_{suffix_no}")
         else:  # 没有传task_id，根据本地task dir名称排序，创建一个新的
-            task_id = 0
+            task_id = 1
             while True:
                 if not os.path.exists(os.path.join(self._task_dirs_root, f"{dirname_prefix}{task_id}")):
                     break

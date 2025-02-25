@@ -1,7 +1,7 @@
 [
     {
         "name": "jafc",
-        "display_name": "JAFC",
+        "display_name": "TCA-Armory-J2",
         "description": "扫描项目代码中的API调用",
         "license": "自研",
         "libscheme_set": [],
@@ -557,8 +557,6 @@
             }
         ],
         "open_user": true,
-        "open_saas": false,
-        "virtual_name": "41",
-        "show_display_name": true
+        "open_saas": false
     }
 ]

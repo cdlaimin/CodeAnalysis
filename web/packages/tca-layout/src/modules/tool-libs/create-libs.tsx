@@ -2,17 +2,18 @@
  * 创建/编辑工具依赖
  */
 import React, { useState, useEffect } from 'react';
-import { isEmpty, fromPairs, toPairs } from 'lodash';
+import { isEmpty, fromPairs, toPairs, get } from 'lodash';
 import { Modal, Form, Input, Select, Tooltip, Button, message, Space } from 'coding-oa-uikit';
 import TrashIcon from 'coding-oa-uikit/lib/icon/Trash';
 import QuestionCircle from 'coding-oa-uikit/lib/icon/QuestionCircle';
+import AttentionIcon from 'coding-oa-uikit/lib/icon/AttentionRed';
+import AuthFormItem from '@tencent/micro-frontend-shared/tca/user-auth/auth-form-item';
+import { userAuthAPI } from '@plat/api';
 
+import { formScmURLSecValidate } from '@tencent/micro-frontend-shared/util';
 import { addToolLib, getLibDetail, updateToolLib } from '@src/services/tools';
-import { REPO_TYPE_OPTIONS, REPO_TYPE } from '@src/modules/tools/constants';
-import { SCM_MAP } from '@src/common/constants/authority';
-import { LIB_ENV, LIB_TYPE } from './constants';
+import { TOOLLIB_REPO_TYPE_OPTIONS, RepoTypeEnum, SCM_MAP, LIB_ENV_CHOICES, LIB_TYPE_CHOICES } from '@src/constant';
 
-import Authority from '@src/components/authority';
 import style from './style.scss';
 
 const { TextArea } = Input;
@@ -36,19 +37,20 @@ const CreateToollibs = (props: CreateToollibsProps) => {
   const { orgSid, visible, libId, isSuperuser, onClose, callback } = props;
   const [form] = Form.useForm();
   const [detail, setDetail] = useState<any>({});
+  const [zipWarningVisible, setZipWarningVisible] = useState<boolean>(false);
   const isEdit = !!libId;
 
   useEffect(() => {
-
     if (visible && libId) {
-      getLibDetail(orgSid, libId).then((res) => {
+      getLibDetail(orgSid, libId).then((res: any) => {
         setDetail(res);
+        setZipWarningVisible(res?.scm_type === RepoTypeEnum.ZIP);
         form.resetFields();
-      })
-    }
-
-    if (visible) {
+      });
+    } else if (visible) {
       form.resetFields();
+      setDetail({});
+      setZipWarningVisible(false);
     }
   }, [visible]);
 
@@ -58,31 +60,37 @@ const CreateToollibs = (props: CreateToollibsProps) => {
     if (formData.scm) {
       const [authType, id] = formData?.scm?.split('#') ?? [];
       data.scm_auth = { auth_type: authType };
-      if (SCM_MAP[authType]) {
-        data.scm_auth[SCM_MAP[authType]] = id;
+      if (get(SCM_MAP, authType)) {
+        data.scm_auth[get(SCM_MAP, authType)] = id;
       }
     } else {
-      data.scm_auth = null
+      data.scm_auth = null;
     }
     delete data.scm;
 
     data.lib_os = formData.lib_os?.join(';');
-    data.envs = !isEmpty(formData.envs) ? fromPairs(formData.envs?.map((item: { key: string, value: string }) => [item.key, item.value])) : {}
+    data.envs = !isEmpty(formData.envs)
+      ? fromPairs(formData.envs?.map((item: { key: string, value: string }) => [item.key, item.value])) : {};
 
     if (isEdit) {
       updateToolLib(orgSid, libId, data).then(() => {
         message.success('更新成功');
         callback?.();
         onClose();
-      })
+      });
     } else {
       addToolLib(orgSid, data).then(() => {
         message.success('创建成功');
         callback?.();
         onClose();
-      })
+      });
     }
-  }
+  };
+
+  /** 表单保存操作 */
+  const onSubmitHandle = () => {
+    form.validateFields().then(onFinish);
+  };
 
   return (
     <Modal
@@ -92,7 +100,7 @@ const CreateToollibs = (props: CreateToollibsProps) => {
       afterClose={form.resetFields}
       onCancel={onClose}
       className={style.createModal}
-      onOk={() => form.validateFields().then(onFinish)}
+      onOk={onSubmitHandle}
     >
       <Form
         {...layout}
@@ -100,9 +108,9 @@ const CreateToollibs = (props: CreateToollibsProps) => {
         initialValues={isEdit ? {
           ...detail,
           lib_os: detail?.lib_os?.split(';'),
-          envs: detail.envs ? toPairs(detail?.envs)?.map((item) => ({ key: item[0], value: item[1] })) : [],
+          envs: detail.envs ? toPairs(detail?.envs)?.map(item => ({ key: item[0], value: item[1] })) : [],
         } : {
-          scm_type: REPO_TYPE.GIT
+          scm_type: RepoTypeEnum.GIT,
         }}
       >
         <Form.Item
@@ -118,7 +126,7 @@ const CreateToollibs = (props: CreateToollibsProps) => {
           name="name"
           rules={[{
             required: true,
-            message: '请输入依赖名称'
+            message: '请输入依赖名称',
           }, {
             pattern: /^[A-Za-z0-9_-]+$/,
             message: '仅支持英文、数字、中划线或下划线',
@@ -155,7 +163,7 @@ const CreateToollibs = (props: CreateToollibsProps) => {
             >
               <Select>
                 {
-                  Object.entries(LIB_TYPE).map(([key, text]) => (
+                  Object.entries(LIB_TYPE_CHOICES).map(([key, text]) => (
                     <Option key={key} value={key}>{text}</Option>
                   ))
                 }
@@ -170,7 +178,7 @@ const CreateToollibs = (props: CreateToollibsProps) => {
         >
           <Select mode='multiple'>
             {
-              Object.entries(LIB_ENV).map(([key, text]) => (
+              Object.entries(LIB_ENV_CHOICES).map(([key, text]) => (
                 <Option key={key} value={key}>{text}</Option>
               ))
             }
@@ -180,44 +188,52 @@ const CreateToollibs = (props: CreateToollibsProps) => {
           label="依赖仓库地址"
           name="scm_url"
           required
+          help={zipWarningVisible ? <span style={{ color: '#eb333f' }}><AttentionIcon />请勿使用不明来源的文件链接，避免潜在的安全风险。</span> : null}
         >
           <Input.Group compact>
             <Form.Item name='scm_type' noStyle>
-              <Select style={{ width: 70 }}>
-                {REPO_TYPE_OPTIONS.map((item: string, index) => (
-                  <Option key={index} value={item}>
-                    {item.toUpperCase()}
-                  </Option>
-                ))}
-              </Select>
+              <Select
+                style={{ width: '16%' }}
+                onChange={(value: RepoTypeEnum) => setZipWarningVisible(value === RepoTypeEnum.ZIP)}
+                options={TOOLLIB_REPO_TYPE_OPTIONS}
+              />
             </Form.Item>
             <Form.Item
               name='scm_url'
               noStyle
               rules={[
                 { required: true, message: '依赖仓库地址' },
+                !zipWarningVisible && formScmURLSecValidate(),
               ]}
             >
-              <Input style={{ width: 357 }} />
+              <Input style={{ width: '84%' }} />
             </Form.Item>
           </Input.Group>
         </Form.Item>
-        <Authority
-          form={form}
-          name='scm'
-          label={(
-            <span>
-              凭证
-              <Tooltip
-                getPopupContainer={() => document.body}
-                title='拉取依赖仓库所需的凭证，如果是github公开仓库，可以不提供凭证。'
-              ><QuestionCircle className={style.questionIcon} /></Tooltip>
-            </span>
-          )}
-          initAuth={detail.scm_auth}
-          selectStyle={{ width: 360 }}
-          placeholder='github公开仓库可不提供凭证'
-        />
+        <Form.Item
+          noStyle
+          shouldUpdate={(prevValues: any, currentValues: any) => prevValues.scm_type !== currentValues.scm_type
+          }
+        >
+          {({ getFieldValue }: { getFieldValue: any }) => (getFieldValue('scm_type') !== RepoTypeEnum.ZIP && (
+            <AuthFormItem form={form}
+              name='scm'
+              label={(
+                <span>
+                  凭证
+                  <Tooltip
+                    getPopupContainer={() => document.body}
+                    title='拉取依赖仓库所需的凭证，如果是github公开仓库，可以不提供凭证。'
+                  ><QuestionCircle className={style.questionIcon} /></Tooltip>
+                </span>
+              )}
+              userAuthAPI={userAuthAPI}
+              authinfo={detail.scm_auth}
+              selectStyle={{ width: 360 }}
+              placeholder='github公开仓库可不提供凭证'
+              allowClear />
+          ))}
+        </Form.Item>
         <Form.Item
           name="envs"
           label={(
@@ -269,7 +285,7 @@ const CreateToollibs = (props: CreateToollibsProps) => {
         </Form.Item>
       </Form>
     </Modal>
-  )
-}
+  );
+};
 
 export default CreateToollibs;

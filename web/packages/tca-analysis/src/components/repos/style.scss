@@ -1,4 +1,4 @@
-@import "@src/common/style/color.scss";
+@import "@tencent/micro-frontend-shared/style/color.scss";
 
 .repos-container {
   display: flex;
@@ -45,6 +45,10 @@
         margin-left: 5px;
         color: $grey-7;
       }
+    }
+
+    .icon-tip-color {
+      color: $grey-7;
     }
 
     .repo-link {

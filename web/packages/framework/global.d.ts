@@ -1,9 +1,3 @@
-// Copyright (c) 2021-2022 THL A29 Limited
-//
-// This source code file is made available under MIT License
-// See LICENSE for details
-// ==============================================================================
-
 declare module '*.scss';
 
 type Store = import('redux').Store;
@@ -18,7 +12,9 @@ interface WindowMicroHook {
 }
 
 interface MicroDevApiList {
-  name: string; url: string
+  name: string;
+  url: string;
+  enabled?: boolean;
 }
 
 interface Window {

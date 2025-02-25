@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2021-2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -43,14 +43,14 @@ class Command(BaseCommand):
         """获取或创建凭证
         """
         password = encrypt(password, settings.PASSWORD_KEY)
-        scm_account = ScmAccount.objects.filter(user=user, scm_username=account, auth_origin_id="Codedog").first()
+        scm_account = ScmAccount.objects.filter(user=user, scm_username=account, auth_origin_id=settings.DEFAULT_ORIGIN_ID).first()
         created = False
         if not scm_account:
             scm_account = ScmAccount.objects.create(
                 user=user,
                 scm_username=account,
                 scm_password=password,
-                auth_origin_id="Codedog"
+                auth_origin_id=settings.DEFAULT_ORIGIN_ID
             )
             created = True
         return scm_account, created
@@ -73,7 +73,7 @@ class Command(BaseCommand):
                         filename_list.append(filename[:-5])
             lib_name_list = filename_list
         # 默认使用CodeDog用户
-        codedog, _ = User.objects.get_or_create(username="CodeDog")
+        codedog, _ = User.objects.get_or_create(username=settings.DEFAULT_USERNAME)
         # 执行工具依赖load
         toollib_json_list = []
         lib_kv = dict()

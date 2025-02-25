@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2021-2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -247,9 +247,11 @@ class ScmAllAcountListApiView(generics.GenericAPIView):
         user = self.request.user
         accounts = models.ScmAccount.objects.filter(user=user).order_by("-id")
         sshs = models.ScmSshInfo.objects.filter(user=user).order_by("-id")
+        oauths = models.ScmAuthInfo.objects.filter(user).order_by("-id")
         return Response({
             "ssh": ScmSshInfoSerializer(sshs, many=True).data,
             "account": ScmAccountSerializer(accounts, many=True).data,
+            "oauth": ScmAuthInfoSerializer(oauths, many=True).data
         })
 
 
@@ -392,14 +394,12 @@ class ScmAuthInfoCheckApiView(generics.GenericAPIView):
         return Response(result)
 
     def delete(self, request):
-        scm_platform_name = request.data.get("scm_platform_name", None)
+        scm_platform_name = request.data.get("scm_platform_name")
         if not scm_platform_name:
             scm_platform_name = scm.SCM_PLATFORM_NUM_AS_KEY[scm.ScmPlatformEnum.GIT_OA]
         scm_auth_info = ScmAuthManager.get_scm_auth(user=request.user, scm_platform=scm_platform_name)
         if scm_auth_info:
-            scm_auth_info.gitoa_access_token = None
-            scm_auth_info.gitoa_refresh_token = None
-            scm_auth_info.save()
+            scm_auth_info.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

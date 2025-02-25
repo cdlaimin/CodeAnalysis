@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-# Copyright (c) 2021-2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -128,7 +128,7 @@ class CodeDogApiServer(object):
             logger.error(f"{rel_url} error: {str(err)}")
             return None, None
 
-    def get_proj_info(self, branch, scan_scheme, repo_id, org_sid, team_name):
+    def get_proj_info(self, branch, scan_scheme, repo_id, org_sid, team_name, scan_path):
         """
         根据扫描方案和scm url查询项目id
         :param scm_url:scm url
@@ -136,14 +136,17 @@ class CodeDogApiServer(object):
         :param repo_id: 仓库编号
         :param org_sid: 团队编号
         :param team_name: 项目名称
+        :param scan_path: 扫描目录,默认为/,表示扫描仓库根目录
         :return:list,符合条件的项目id列表
         """
+        if not scan_path:
+            scan_path = "/"  # 默认为根目录
         if scan_scheme:
             rel_url = f"api/orgs/{org_sid}/teams/{team_name}/repos/{repo_id}/" \
-                      f"projects/?scan_scheme__name={quote(scan_scheme)}&branch={quote(branch)}"
+                      f"projects/?scan_scheme__name={quote(scan_scheme)}&branch={quote(branch)}&scan_path={scan_path}"
         else:
             rel_url = f"api/orgs/{org_sid}/teams/{team_name}/repos/{repo_id}/" \
-                      f"projects/?branch={quote(branch)}&scan_scheme__default_flag=true"
+                      f"projects/?branch={quote(branch)}&scan_scheme__default_flag=true&scan_path={scan_path}"
         rsp = CodeDogHttpClient(self._server_url, rel_url, headers=self._headers).get()
         rsp_dict = self.get_data_from_result(rsp)
         if rsp_dict["count"] == 0:
@@ -325,19 +328,12 @@ class CodeDogApiServer(object):
     # 格式: server task api
     # ------------------------------------------------------------------------------------- #
 
-    def register(self, node_uuid, tag):
+    def register(self, data):
         """
         用本地node_uuid向server注册，获取server给的node_id
-        :param node_uuid: server的node rpc接口
-        :param tag: 机器标签
         :return: node_id
         """
         rel_url = "api/nodes/register/"
-        data = {
-            "uuid": node_uuid,
-            "tag": tag,
-            "os_info": settings.PLATFORMS[sys.platform]
-        }
         rsp = CodeDogHttpClient(self._server_url, rel_url, headers=self._headers, json_data=data).post()
         rsp_dict = self.get_data_from_result(rsp)
         return rsp_dict['id']

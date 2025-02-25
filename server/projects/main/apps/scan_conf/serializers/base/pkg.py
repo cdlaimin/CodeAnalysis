@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2021-2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -25,6 +25,26 @@ class CheckProfilePackageAddSerializer(serializers.Serializer):
     checkpackages = serializers.PrimaryKeyRelatedField(
         queryset=models.CheckPackage.objects.filter(package_type=models.CheckPackage.PackageTypeEnum.OFFICIAL),
         many=True)
+
+
+class CheckPackageRuleAddSerializer(serializers.Serializer):
+    """用于规则包批量添加规则序列化
+    """
+    checkrules = serializers.ListField(
+        child=serializers.PrimaryKeyRelatedField(queryset=models.CheckRule.objects.all()),
+        required=False, allow_null=True, help_text="规则列表"
+    )
+    checktool = serializers.PrimaryKeyRelatedField(
+        queryset=models.CheckTool.objects.all(), 
+        required=False, allow_null=True, help_text="工具"
+    )
+
+    def validate(self, attrs):
+        checkrules = attrs.get("checkrules")
+        checktool = attrs.get("checktool")
+        if not checktool and not checkrules:
+            raise serializers.ValidationError({"cd_error": "请传入checkrules或checktool"})
+        return attrs
 
 
 class CheckPackageRuleUpdateSerializer(serializers.Serializer):

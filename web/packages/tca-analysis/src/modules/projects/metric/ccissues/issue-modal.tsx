@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022 THL A29 Limited
+// Copyright (c) 2021-2024 THL A29 Limited
 //
 // This source code file is made available under MIT License
 // See LICENSE for details
@@ -8,15 +8,14 @@
  * 圈复杂度 - 方法列表详情
  */
 import React, { useEffect, useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import cn from 'classnames';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import Highlight from 'react-highlight';
 import { VariableSizeList as List } from 'react-window';
 import { Modal, Button, Tooltip } from 'coding-oa-uikit';
 import InfoCircle from 'coding-oa-uikit/lib/icon/InfoCircle';
-import LinkIcon from 'coding-oa-uikit/lib/icon/Link';
 
+import Copy from '@src/components/copy';
 import PositionIcon from '@src/images/position.svg';
 import { getCodeFile, getCCIssueDetail } from '@src/services/projects';
 import Loading from '@src/components/loading';
@@ -85,7 +84,7 @@ const IssueModal = (props: IssueModalProps) => {
   };
 
   const rowRenderer = ({ index, style: rowStyle }: any) => {
-    const { lineNum: line, content } = codeFile?.codeContents[index];
+    const { lineNum: line, content } = codeFile?.codeContents[index] || {};
     const rowRef: any = useRef({});
     const language = detail.language ?? codeFile.suffix?.split('.')[1] ?? 'plaintext';
 
@@ -127,11 +126,17 @@ const IssueModal = (props: IssueModalProps) => {
       centered
       title={
         <div className={style.modalTitle}>
-          <p>{detail.func_name}</p>
-          <Tooltip title='点击跳转新窗口打开详情页'>
+          <p>{detail.func_name}
+            <span className={style.modalDesc}>
+              文件路径：{detail.file_path}
+            </span>
+            <Copy text={detail.file_path} className={style.copyIcon} />
+
+          </p>
+          {/* <Tooltip title='点击跳转新窗口打开详情页'>
             <Link className={style.link} target='_blank' to={`${location.pathname}/${issueId}`}><LinkIcon /></Link>
-          </Tooltip>
-        </div>
+          </Tooltip> */}
+        </div >
       }
       width={1000}
       visible={visible}
@@ -156,7 +161,7 @@ const IssueModal = (props: IssueModalProps) => {
             <Tooltip
               title={
                 <div>
-                  <h3 style={{ color: '#fff' }}>圈复杂度说明</h3>
+                  <h3>圈复杂度说明</h3>
                   <p>定义：数量上表现为独立执行路径条数，也可理解为覆盖所有的可能情况最少使用的测试用例数。 </p>
                   <p>关键：圈复杂度大说明程序代码可能质量低且难于测试和维护，根据经验，程序的可能错误和高的圈复杂度有着很大关系。 </p>
                   <p>修复建议：建议通过重构方法、简化条件表达式等手段来降低方法的圈复杂度。 </p>
@@ -181,19 +186,19 @@ const IssueModal = (props: IssueModalProps) => {
           {loading ? (
             <Loading />
           ) : (
-              <AutoSizer>
-                {({ height, width }: any) => (
-                  <List
-                    ref={listRef}
-                    height={height}
-                    itemCount={codeFile.codeContents?.length || 0}
-                    itemSize={getRowHeight}
-                    width={width}
-                  >
-                    {rowRenderer}
-                  </List>
-                )}
-              </AutoSizer>
+            <AutoSizer>
+              {({ height, width }: any) => (
+                <List
+                  ref={listRef}
+                  height={height}
+                  itemCount={codeFile.codeContents?.length || 0}
+                  itemSize={getRowHeight}
+                  width={width}
+                >
+                  {rowRenderer}
+                </List>
+              )}
+            </AutoSizer>
           )}
         </div>
       </div>
@@ -201,7 +206,7 @@ const IssueModal = (props: IssueModalProps) => {
         <Button onClick={prevIssue} disabled={loading || isFirstIssue}>上一个方法</Button>
         <Button onClick={nextIssue} disabled={loading || isLastIssue}>下一个方法</Button>
       </div>
-    </Modal>
+    </Modal >
   );
 };
 

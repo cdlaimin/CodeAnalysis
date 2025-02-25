@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-# Copyright (c) 2021-2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -118,7 +118,7 @@ class CpplintRunner(object):
         """扫描单个文件"""
         # 先置空，以免上一个影响
         self.cmd_output = []
-        cmd = cmd_args + [file_path]
+        cmd = cmd_args + ["\"%s\"" % file_path]
         logger.info("scan file: %s" % file_path)
         # cpplint的error信息通过stderr通道输出,结果统计信息通过stdout通道输出,可以只解析stderr结果
         subProC = SubProcController(cmd, stderr_line_callback=self.__collect_result_callback__)
@@ -131,6 +131,7 @@ class CpplintRunner(object):
                 )
                 ProcMgr().kill_proc_famliy(subProC.pid)
             else:
+                logger.error("error on file(%s): %s" % (file_path, err))
                 raise
 
         # 解析cpplint原始结果
@@ -203,8 +204,8 @@ class Cpplint(CodeLintModel):
 
         cmd_args = [
             "python",
-            cpplint_path,
-            "--repository=%s" % source_dir,
+            "\"%s\"" % cpplint_path,
+            "--repository=\"%s\"" % source_dir,
             "--linelength=%s" % linelength,
             "--headers=h,hpp,cuh,hxx,h++",
         ]
@@ -213,9 +214,10 @@ class Cpplint(CodeLintModel):
         if file_extensions:
             cmd_args.append("--extensions=" + file_extensions)
             logger.info("扫描文件为 %s" % file_extensions)
-        if project_name.find(".git") != -1:
-            project_name = project_name.replace(".git", "")
-        cmd_args.append("--root=%s" % project_name)
+        if project_name:
+            if project_name.find(".git") != -1:
+                project_name = project_name.replace(".git", "")
+            cmd_args.append("--root=%s" % project_name)
         if rules:
             filter_arg = "--filter=-,+" + ",+".join(rules)
             cmd_args.append(filter_arg)
@@ -288,13 +290,15 @@ class Cpplint(CodeLintModel):
         reg_client = re.compile(r"^(.+?):(\d+):\s+(.+?)\s+\[([\S]+)\]\s+\[(\d+)\]$")
         max_linelength = self.__get_linelength_param(params)
         # 获取项目名称
-        if "git" == params.get("scm_type"):  # git仓库
+        project_name = None
+        scm_type = params.get("scm_type")
+        if "git" == scm_type:  # git仓库
             project_name = params.get("scm_url")
             if project_name.find("#") != -1:
                 project_name = project_name.split("#")[0]
             project_name = project_name.split("/")[-1]
             project_name = project_name.replace(".git", "")
-        else:  # svn项目
+        elif "svn" == scm_type:  # svn项目
             project_name = params.get("scm_url").split("/")[-1].split("_proj")[0]
         cmd_args = self.__prepare_cpplint_args(source_dir, rules, max_linelength, project_name)
 

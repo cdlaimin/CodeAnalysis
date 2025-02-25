@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022 THL A29 Limited
+// Copyright (c) 2021-2024 THL A29 Limited
 //
 // This source code file is made available under MIT License
 // See LICENSE for details
@@ -10,7 +10,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { Modal, Form, Input, message, Button } from 'coding-oa-uikit';
-import { t } from '@src/i18n/i18next';
+import { t } from '@src/utils/i18n';
+
 
 import s from './style.scss';
 
@@ -24,9 +25,10 @@ interface DeleteModalProps {
   onOk: () => void;
 }
 
-const DeleteModal = ({ actionType, objectType, confirmName, addtionInfo='', visible, onCancel, onOk }: DeleteModalProps) => {
+const DeleteModal = ({ actionType, objectType, confirmName, addtionInfo = '', visible, onCancel, onOk }: DeleteModalProps) => {
   const [form] = Form.useForm();
   const [confirmed, setConfirmed] = useState<boolean>(true);
+
 
   useEffect(() => {
     visible && form.resetFields();
@@ -84,7 +86,7 @@ const DeleteModal = ({ actionType, objectType, confirmName, addtionInfo='', visi
             {t('您正在')}{actionType}{objectType} <span className={s.confirmText}>{confirmName}</span>{' '}<br/>
       </p>
       {addtionInfo && <p className={s.warningMessage}>{addtionInfo}</p>}
-      <p className={s.confirmMessage}>{t(`为确认${actionType}操作，请输入您要${actionType}的`)}{objectType}</p>
+      <p className={s.confirmMessage}>{`为确认${actionType}操作，请输入您要${actionType}的`}{objectType}</p>
       <Form
         layout="vertical"
         form={form}
