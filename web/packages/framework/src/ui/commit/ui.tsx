@@ -1,12 +1,6 @@
-// Copyright (c) 2021-2022 THL A29 Limited
-//
-// This source code file is made available under MIT License
-// See LICENSE for details
-// ==============================================================================
-
 import React, { useState, useEffect } from 'react';
 import cn from 'classnames';
-import { message } from 'coding-oa-uikit';
+import { message } from 'tdesign-react';
 
 import MicroApplication from '@src/meta/application';
 import s from './style.scss';
@@ -32,7 +26,7 @@ const CommitUI = ({
   const prod = production.map(p => p.props).map(({ commitId }) => commitId);
   useEffect(() => {
     message.info(`已开启 ${mode}`);
-  }, []);
+  }, [mode]);
   return (
     <div
       className={s.buffetContainer}

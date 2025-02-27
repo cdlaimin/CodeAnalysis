@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2021-2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -231,8 +231,10 @@ REST_FRAMEWORK = {
 # CodeDog开关配置
 LOGIN_USER_TYPE = "codedog_user"
 CODEDOG_USER_CHECK = False
+DEFAULT_USERNAME = "CodeDog"
+DEFAULT_ORIGIN_ID = "CodeDog"
 # HTTPS克隆开关
-HTTPS_CLONE_FLAG = False
+HTTPS_CLONE_FLAG = True
 
 # 时间配置
 CLOSING_JOB_TIMEOUT = timedelta(hours=12)          # 入库超时时间

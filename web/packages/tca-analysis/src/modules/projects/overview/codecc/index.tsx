@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022 THL A29 Limited
+// Copyright (c) 2021-2024 THL A29 Limited
 //
 // This source code file is made available under MIT License
 // See LICENSE for details
@@ -8,6 +8,7 @@
  * 分支概览圈复杂度详情
  */
 import React, { useState } from 'react';
+import { t } from '@src/utils/i18n';
 import { Radio, Row, Col } from 'coding-oa-uikit';
 import classnames from 'classnames';
 import { get, minBy } from 'lodash';
@@ -17,7 +18,6 @@ import NoData from '../no-data';
 import PieCharts from '@src/components/charts/pie';
 import { Area } from '@ant-design/plots';
 import s from '../style.scss';
-import { t } from '@src/i18n/i18next';
 import { STANDARD_TYPE, STANDARD_OPTIONS } from '@src/modules/projects/constants';
 import { getCyCLineChartData, getCycPieChartData } from '../utils';
 
@@ -28,9 +28,9 @@ export const CYC_TYPE = {
 };
 
 export const CYC_TYPE_TXT = {
-  TOTAL: t('总数'),
-  OVER: t('超标数'),
-  EXCESS: t('未超标数'),
+  TOTAL: '总数',
+  OVER: '超标数',
+  EXCESS: '未超标数',
 };
 
 const CYC_TYPE_OPTIONS = [
@@ -45,8 +45,8 @@ const CYC_TYPE_OPTIONS = [
 ];
 
 const colors: any = {
-  "超标数": "#eb333f",
-  "未超标数": "#0066ff",
+  超标数: '#eb333f',
+  未超标数: '#0066ff',
 };
 
 interface IProps {
@@ -59,6 +59,7 @@ const CodeCC = ({ cycScans }: IProps) => {
   const cycLineDatas = getCyCLineChartData(cycScans, standardValue);
   const cycLineData = get(cycLineDatas, typeValue, []);
   const cycPieData = getCycPieChartData(cycScans, standardValue);
+
   // 校验是否展示标准切换radio，如果最新的数据，不存在custom_summary，则不显示 radio
   const isShowStandardRadio = () => {
     let show = false;
@@ -98,9 +99,7 @@ const CodeCC = ({ cycScans }: IProps) => {
               <PieCharts
                 data={cycPieData}
                 confs={{
-                  color: ({ type }: { type: string }) => {
-                    return colors[type] || "#0066ff";
-                  }
+                  color: ({ type }: { type: string }) => colors[type] || '#0066ff',
                 }}
               />
             ) : (
@@ -131,10 +130,10 @@ const CodeCC = ({ cycScans }: IProps) => {
                     line: {
                       style: {
                         stroke: '#e6e9ed',
-                        lineDash: [3, 2]
-                      }
-                    }
-                  }
+                        lineDash: [3, 2],
+                      },
+                    },
+                  },
                 }}
               />
             ) : (

@@ -1,30 +1,27 @@
-// Copyright (c) 2021-2022 THL A29 Limited
-//
-// This source code file is made available under MIT License
-// See LICENSE for details
-// ==============================================================================
-
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import Loading from '@src/components/loading';
+import { useMount } from 'ahooks';
+import { message } from 'tdesign-react';
 
+import Loading from '@tencent/micro-frontend-shared/tdesign-component/loading';
 import { addMemberByInvite } from '@src/services/team';
 
-
 const OrgInvite = () => {
-  const params: any = useParams();
+  const { code }: any = useParams();
 
   const history = useHistory();
 
-  useEffect(() => {
-    addMemberByInvite(decodeURIComponent(params.code))
-      .then((response: any) => {
-        history.replace(`/t/${response.org_sid}/profile`);
+  useMount(() => {
+    addMemberByInvite(decodeURIComponent(code))
+      .then((res: any) => {
+        message.success('已加入团队');
+        history.replace(`/t/${res.org_sid}/profile`);
       })
       .catch(() => {
+        message.error('加入团队失败');
         history.replace('/');
       });
-  }, []);
+  });
 
   return (
     <Loading />

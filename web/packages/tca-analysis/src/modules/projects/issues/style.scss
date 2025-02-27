@@ -1,4 +1,4 @@
-@import '@src/common/style/color.scss';
+@import '@tencent/micro-frontend-shared/style/color.scss';
 
 .operation {
   position: absolute;
@@ -41,7 +41,7 @@
 
   .path {
     font-size: 12px;
-    color: $grey-7;
+    color: $grey-6;
     max-width: 400px;
     word-break: break-all;
   }
@@ -246,6 +246,24 @@
         vertical-align: inherit !important;
       }
     }
+
+    .modal-desc, .copy-icon{
+      font-size: 12px;
+      color: #606c80;
+      word-break: break-all
+    }
+  }
+
+  .code-error {
+    margin-top: 30px;
+
+    p {
+      margin-bottom: 16px;
+    }
+
+    .error-desc {
+      color: #eb333f;
+    }
   }
 
   .wrapper {
@@ -283,8 +301,23 @@
     }
   }
 
+  .issue-line-bar {
+    padding: 4px 20px;
+    border-top: 1px solid #e6e9ed;
+    background-color: #f5f7fa;
+
+    .line-label {
+      color: #606c80;
+    }
+
+    .line {
+      padding: 0 8px;
+    }
+  }
+
   .code-wrapper {
     height: 800px;
+    height: calc(100vh - 340px);
     padding-left: 20px;
 
     .row {
@@ -301,19 +334,52 @@
 
       .code-content {
         flex: 1;
-        padding-left: 10px;
+        // padding-left: 10px;
+
+        pre {
+          padding-left: 10px;
+        }
 
         .rule-wrapper {
           padding-top: 6px;
+          padding-right: 10px;
+          padding-left: 10px;
 
-          .rule-desc {
-            padding-left: 17px;
-            margin-top: 2px;
+          .rule {
+            display: flex;
+            justify-content: space-between;
+            cursor: pointer;
+
+            button {
+              height: 26px;
+            }
+
+            .rule-content {
+              color: #202d40;
+            }
           }
 
-          .rule-detail {
-            padding-left: 6px;
+          .rule-desc {
+            color: #606c80;
             font-size: 13px;
+            padding-left: 17px;
+            margin-top: 2px;
+            line-height: 2;
+            max-height: 300px;
+            overflow: auto;
+
+            h4 {
+              color: #606c80;
+              margin-top: 16px;
+              font-size: 14px;
+            }
+          }
+
+          .issue-msg {
+            padding-left: 20px;
+            margin: 6px 0;
+            // font-size: 13px;
+            white-space: pre-line;
           }
         }
 
@@ -321,23 +387,45 @@
           &-1 {
             background-color: $fatal-bg;
             color: $fatal-color;
+
+            pre {
+              background-color: $fatal-bg;
+            }
           }
 
           &-2 {
             background-color: $error-bg;
             color: $error-color;
+
+            pre {
+              background-color: $error-bg;
+            }
           }
 
           &-3 {
             background-color: $warging-bg;
             color: $warging-color;
+
+            pre {
+              background-color: $warging-bg;
+            }
           }
 
           &-4 {
             background-color: $tip-bg;
             color: $tip-color;
+
+            pre {
+              background-color: $tip-bg;
+            }
           }
         }
+      }
+      
+      .issue-refers {
+        padding-left: 10px;
+        color: #202d40;
+        background-color: #cceaff;
       }
     }
   }

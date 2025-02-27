@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2021-2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -49,6 +49,9 @@ class Language(models.Model):
         DART = 'dart'
         SHELL = 'shell'
         PB = 'protobuf'
+        SQL = 'sql'
+        WASM = "wasm"
+        RUST = "rust"
 
     LANGUAGE_CHOICES = (
         (LanguageEnum.CPP, 'C/C++'),
@@ -80,6 +83,9 @@ class Language(models.Model):
         (LanguageEnum.DART, "Dart"),
         (LanguageEnum.SHELL, "Shell"),
         (LanguageEnum.PB, "Protocol Buffers"),
+        (LanguageEnum.SQL, "SQL"),
+        (LanguageEnum.WASM, "WebAssembly"),
+        (LanguageEnum.RUST, "Rust"),
     )
 
     name = models.CharField(max_length=32, help_text='程序语言', choices=LANGUAGE_CHOICES, null=True)

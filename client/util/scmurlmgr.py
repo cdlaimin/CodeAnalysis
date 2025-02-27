@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-# Copyright (c) 2021-2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -52,6 +52,9 @@ class BaseScmUrlMgr(object):
             dirname = dirname.replace(".zip", "")
         if dirname.endswith(".7z"):
             dirname = dirname.replace(".7z", "")
+        # 如果url包含分支，即 .git#BranchName 的格式，目录名删除.git
+        if ".git#" in dirname:
+            dirname = dirname.replace(".git#", "#")
         return dirname
 
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2021-2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -56,6 +56,8 @@ urlpatterns = [
          apis.CheckRuleListAPIView.as_view()),
     path("allrules/<int:checkrule_id>/",
          apis.CheckRuleDetailAPIView.as_view()),
+    path("allrules/byname/",
+         apis.CheckRuleDetailByNameAPIView.as_view()),
     path("checkprofile/", include(checkprofile_urlpatterns)),
     path("checkprofile/checkpackages/", include(checkpackage_urlpatterns)),
 ]

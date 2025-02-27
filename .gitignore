@@ -22,10 +22,15 @@ __pycache__
 # Cython
 *.pyx
 *.c
+*.pyd
+*.so
 
 
 # Other
 .docker_data
+.docker_temp
+docker-compose.yml.bak
 client/data/taskdirs/*
 **/*.log
 data/
+*.out

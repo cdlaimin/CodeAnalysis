@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2021-2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -55,7 +55,7 @@ def check_project_active():
     logger.info("开始检查项目是否运行正常")
     logger.info("1. 开始检查项目近一个月是否有启动扫描")
     projects = models.Project.objects.filter(status=models.Project.StatusEnum.ACTIVE)
-    codedog_user, created = User.objects.get_or_create(username="CodeDog")
+    codedog_user, created = User.objects.get_or_create(username=settings.DEFAULT_USERNAME)
     current_time = _now()
     for project in projects:
         # 长期未成功执行扫描

@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022 THL A29 Limited
+// Copyright (c) 2021-2024 THL A29 Limited
 //
 // This source code file is made available under MIT License
 // See LICENSE for details
@@ -10,8 +10,19 @@
  * create at        2020-10-23
  */
 
-import { get, post, put, del } from './index';
-import { MAIN_SERVER_API, getMainBaseURL } from './common';
+import { get, post, put, del } from '@plat/api';
+import { MAIN_SERVER_API } from '@src/constant/api';
+import { getMainBaseURL } from './common';
+
+/**
+ * 分析方案前缀
+ * @param orgSid
+ * @param teamName
+ * @param repoId
+ * @param schemeId
+ * @returns
+ */
+const getSchemePrefix = (orgSid: string, teamName: string, repoId: string | number, schemeId: string | number) => `${getMainBaseURL(orgSid, teamName)}/repos/${repoId}/schemes/${schemeId}`;
 
 /**
  * 获取分析方案列表
@@ -35,7 +46,14 @@ export const getLabels = () => get(`${MAIN_SERVER_API}/labels/?limit=100`);
 /**
  * 获取运行环境列表
  */
-export const getTags = () => get(`${MAIN_SERVER_API}/tags/?limit=50`);
+export const getTags = (orgId: string, params: any = null) => get(`${MAIN_SERVER_API}/orgs/${orgId}/nodes/tags/`, params);
+
+/**
+ * 获取节点列表
+ * @param orgId
+ * @param params 筛选参数
+ */
+export const getNodes = (orgId: string, params: any = null) => get(`${MAIN_SERVER_API}/orgs/${orgId}/nodes/`, params);
 
 /**
  * 拉取模板配置
@@ -198,6 +216,16 @@ export const getPackagesRule = (
 export const getRulesFilter = (orgSid: string, teamName: string, repoId: string | number, schemeId: string | number, pkgId: number) => get(`${getMainBaseURL(orgSid, teamName)}/repos/${repoId}/schemes/${schemeId}/checkprofile/checkpackages/${pkgId}/rules/filter/`);
 
 /**
+ * 代码检查 - 获取所有已配置的规则
+ */
+export const getAllCheckRules = (orgSid: string, teamName: string, repoId: string | number, schemeId: string | number, query: any) => get(`${getSchemePrefix(orgSid, teamName, repoId, schemeId)}/checkrules/`, query);
+
+/**
+ * 代码检查 - 获取所有已配置规则的筛选项
+ */
+export const getAllCheckRulesFilters = (orgSid: string, teamName: string, repoId: string | number, schemeId: string | number) => get(`${getSchemePrefix(orgSid, teamName, repoId, schemeId)}/checkrules/filter/`);
+
+/**
  * 代码检查-规则配置-修改规则状态
  * @param orgSid 团队唯一标识
  * @param teamName 项目唯一标识
@@ -273,6 +301,17 @@ export const addRule = (orgSid: string, teamName: string, repoId: string | numbe
  * @returns
  */
 export const getRuleDetail = (orgSid: string, teamName: string, repoId: string | number, schemeId: string | number, ruleId: number) => get(`${getMainBaseURL(orgSid, teamName)}/repos/${repoId}/schemes/${schemeId}/allrules/${ruleId}/`);
+
+/**
+ * 代码检查 - 获取指定规则的详细信息
+ * @param {*} toolName - 工具名称
+ * @param {*} ruleRealName - 规则真实名称
+ * @returns
+ */
+export const getRuleDetailByName = (orgSid: string, teamName: string, repoId: string | number, schemeId: string | number, toolName: string, ruleRealName: string) => get(`${getSchemePrefix(orgSid, teamName, repoId, schemeId)}/allrules/byname/`, {
+  checktool_name: toolName,
+  checkrule_real_name: ruleRealName,
+});
 
 // ============================================ 分析方案 - 代码度量 ============================================
 
@@ -412,3 +451,9 @@ export const importScanDir = (orgSid: string, teamName: string, repoId: number, 
  * @returns
  */
 export const getBranchs = (orgSid: string, teamName: string, repoId: number, schemeId: number, query: any) => get(`${getMainBaseURL(orgSid, teamName)}/repos/${repoId}/schemes/${schemeId}/branchs/`, query);
+
+/**
+ * 获取工具列表
+ * @param {*} query
+ */
+export const getCheckTools = (orgId: string, query: any) => get(`${MAIN_SERVER_API}/orgs/${orgId}/checktools/`, query);

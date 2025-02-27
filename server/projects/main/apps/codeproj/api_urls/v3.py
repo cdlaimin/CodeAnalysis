@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2021-2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -214,4 +214,5 @@ urlpatterns = [
     path("orgs/<str:org_sid>/schemes/", include(global_scheme_urlpatterns)),
     path("orgs/<str:org_sid>/checktools/", include("apps.scan_conf.api_urls.v3_checktool")),
     path("orgs/<str:org_sid>/toollibs/", include("apps.scan_conf.api_urls.v3_toollib")),
+    path("orgs/<str:org_sid>/nodes/", include("apps.nodemgr.api_urls.v3")),
 ]

@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-# Copyright (c) 2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -14,27 +14,46 @@ import time
 import psutil
 import uuid
 import sys
+import socket
 
 from node import app
 from platform import platform
+
 from util.logutil import LogPrinter
 
 
 class NodeMgr(object):
     """本地节点管理"""
 
-    def register_node(self, server):
+    def get_docker_uuid(self, create_from, tag):
+        """如果从docker创建，获取到docker的主机名，与标签一起拼接成为节点唯一标识NODE_UUID"""
+        if create_from and "docker" == create_from:
+            host_name = socket.gethostname()
+            return f"{tag}-{host_name}"
+        return None
+
+    def register_node(self, server, tag=None, org_sid=None, create_from=None):
         '''用本地node_uuid向server注册，获取server给的node_id。
         如果node_id和本地存储node_id不一致，则抛出异常。
-
-        :param server: server的node rpc接口
         '''
+        if not tag:
+            tag = app.settings.OS_TAG_MAP[sys.platform]
         node_uuid = app.persist_data.get('NODE_UUID')
         if not node_uuid:
-            node_uuid = uuid.uuid1().hex
+            node_uuid = self.get_docker_uuid(create_from, tag)
+            if not node_uuid:
+                node_uuid = uuid.uuid1().hex
             app.persist_data['NODE_UUID'] = node_uuid
-        tag = app.settings.OS_TAG_MAP[sys.platform]
-        node_id = server.register(node_uuid, tag)
+
+        data = {
+            "uuid": node_uuid,
+            "tag": tag,
+            "os_info": app.settings.PLATFORMS[sys.platform],
+            "org_sid": org_sid  # 为空时，表示为公共节点，不为空时，表示指定团队的节点
+        }
+        if create_from:
+            data["create_from"] = create_from
+        node_id = server.register(data)
         LogPrinter.info('node(%s) registered in server node id:%s', node_uuid, node_id)
         app.persist_data['NODE_ID'] = node_id
 
@@ -99,7 +118,10 @@ class HeartBeat(object):
             host_ip = HostNetMgr().get_host_ip()
             data = {"puppy_ip": host_ip}
             # LogPrinter.info(f">>> data: {data}")
-            self._server.heart_beat(data)
+            try:
+                self._server.heart_beat(data)
+            except Exception as err:
+                LogPrinter.exception(f"heart beat error: {str(err)}")
             time.sleep(self._beat_interval)
 
     def start(self):

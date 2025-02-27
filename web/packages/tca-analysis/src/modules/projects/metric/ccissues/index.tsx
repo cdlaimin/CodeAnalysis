@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022 THL A29 Limited
+// Copyright (c) 2021-2024 THL A29 Limited
 //
 // This source code file is made available under MIT License
 // See LICENSE for details
@@ -16,7 +16,7 @@ import { Table, Avatar } from 'coding-oa-uikit';
 import UserIcon from 'coding-oa-uikit/lib/icon/User';
 
 import { getQuery } from '@src/utils';
-import { DEFAULT_PAGER } from '@src/common/constants';
+import { DEFAULT_PAGER } from '@src/constant';
 import { getProjectRouter } from '@src/utils/getRoutePath';
 import { getCCFunIssues } from '@src/services/projects';
 import { CC_CHANGE_TYPE_CHOICES } from '../../constants';
@@ -78,7 +78,7 @@ const CCIssues = (props: CCIssuesProps) => {
       .then((response: any) => {
         setCount(response.count);
         callback?.(response.results || []);
-        history.push(`${location.pathname}?${qs.stringify(params)}`);
+        history.replace(`${location.pathname}?${qs.stringify(params)}`);
         setData({
           list: response.results || [],
           next: response.next,

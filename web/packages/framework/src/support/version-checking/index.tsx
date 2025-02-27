@@ -1,18 +1,12 @@
-// Copyright (c) 2021-2022 THL A29 Limited
-//
-// This source code file is made available under MIT License
-// See LICENSE for details
-// ==============================================================================
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { getMountedApps } from 'single-spa';
-import { message } from 'coding-oa-uikit';
+import { message } from 'tdesign-react';
 import xorBy from 'lodash/xorBy';
 import toInteger from 'lodash/toInteger';
 
 import useInterval from '@src/utils/use-interval';
-import { error, getMetaEnv, info, getOrCreateBodyContainer } from '@src/utils';
+import { error, getMetaEnv, info, getOrCreateBodyContainer, isTrue } from '@src/utils';
 import Constant, { DEFAULT_MICRO_FRONTEND_API, DEFAULT_MICRO_VERSION_INTERVAL } from '@src/constant';
 
 
@@ -23,7 +17,7 @@ const MICRO_FRONTEND_API = getMetaEnv(Constant.MICRO_FRONTEND_API, DEFAULT_MICRO
 const MICRO_VERSION_INTERVAL = toInteger(getMetaEnv(Constant.MICRO_VERSION_INTERVAL)) || DEFAULT_MICRO_VERSION_INTERVAL;
 
 // 系统级别是否开启版本检查
-const MICRO_VERSION_ENABLED = getMetaEnv(Constant.MICRO_VERSION_ENABLED) === 'TRUE';
+const MICRO_VERSION_ENABLED = isTrue(getMetaEnv(Constant.MICRO_VERSION_ENABLED, 'true'));
 
 /**
  * 校验挂载的apps新旧版本
@@ -49,15 +43,14 @@ const check = async (mountedApps: string[]) => {
 };
 
 const VersionChecking = () => {
-  useInterval(async () => {
-    // 获取当前挂载的apps
-    const mountedApps = getMountedApps();
-    const diffs = await check(mountedApps);
-    if (diffs.length > 0) {
-      message.open({
-        type: 'info',
-        content: (
-          <span
+  useInterval(() => {
+    (async () => {
+      // 获取当前挂载的apps
+      const mountedApps = getMountedApps();
+      const diffs = await check(mountedApps);
+      if (diffs.length > 0) {
+        message.info({
+          content: <span
             style={{
               display: 'inline-block',
               verticalAlign: 'middle',
@@ -65,15 +58,14 @@ const VersionChecking = () => {
             }}
           >
             发现新版本，自动更新中...
-          </span>
-        ),
-        duration: 1,
-        onClose: () => {
-          window.location.reload();
-        },
-        icon: <img width="24px" height="24px" src="/static/favicon.ico" />,
-      });
-    }
+          </span>,
+          onClose: () => {
+            window.location.reload();
+          },
+          icon: <img width="28px" height="28px" src="/static/images/favicon.ico" />,
+        });
+      }
+    })();
   }, MICRO_VERSION_INTERVAL);
 
   return <></>;

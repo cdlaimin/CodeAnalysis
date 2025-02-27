@@ -1,22 +1,24 @@
-// Copyright (c) 2021-2022 THL A29 Limited
-//
-// This source code file is made available under MIT License
-// See LICENSE for details
-// ==============================================================================
-
 import { info } from '@src/utils';
 
 /**
  * 微前端资源属性类型
  */
 export interface MicroApplicationProps {
+  /** 微前端唯一标识 */
   name: string;
+  /** 描述 */
   description: string;
+  /** url匹配，可正则 */
   match: string;
+  /** git commit id */
   commitId?: string;
+  /** 变更描述 */
   changeAt?: string;
+  /** css资源路径列表 */
   css: string[];
+  /** js资源路径列表 */
   js: string[];
+  /** 前缀 */
   prefix: string[] | string;
 }
 
@@ -95,7 +97,7 @@ export default class MicroApplication implements BaseMicroApplication<MicroAppli
   }
 
   public loadResources(): Promise<any> {
-    info('加载js、css资源文件');
+    info(`加载 ${this.props.name} js、css资源文件`);
     return Promise.all([this.loadStyle(), this.loadScript()]);
   }
 

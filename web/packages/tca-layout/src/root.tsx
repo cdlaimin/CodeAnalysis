@@ -1,37 +1,29 @@
-// Copyright (c) 2021-2022 THL A29 Limited
-//
-// This source code file is made available under MIT License
-// See LICENSE for details
-// ==============================================================================
-
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
-import { hot } from 'react-hot-loader';
+import { get } from 'lodash';
 
-import User from '@src/modules/layout/user';
-import Teams from '@src/modules/team';
-import Invite from '@src/modules/team/components/invite';
-import Team from '@src/modules/layout/team';
+import Loading from '@tencent/micro-frontend-shared/tdesign-component/loading';
+
 import Home from '@src/modules/home';
-import Manage from '@src/modules/layout/manage';
-import GitOAuth from '@src/modules/git-oauth';
 import LoadInitService from './load-init-service';
+
+// 项目内
+import { ROOT_ROUTERS } from '@src/routes';
+
+/** 路由 */
+const routes = ROOT_ROUTERS.map(item => <Route key={`${item.path}`} {...item} />);
+/** 重定向路由 */
+const redirectRoute = <Redirect from="/" to={get(ROOT_ROUTERS, '0.path.0') || get(ROOT_ROUTERS, '0.path')} />;
 
 const Root = () => (
   <Router>
-    <Suspense fallback={null}>
+    <Suspense fallback={<Loading />}>
       <Switch>
         <Route path="/" exact component={Home} />
         <Route path="/login" render={() => ''} />
         <LoadInitService>
           <Switch>
-            <Route path="/manage" component={Manage} />
-            <Route path="/user" component={User} />
-            <Route path="/teams" component={Teams} />
-            <Route path="/cb_git_auth/:scm_platform_name" component={GitOAuth} />
-            <Route path="/t/invite/:code" component={Invite} />
-            <Route path="/t/:orgSid" component={Team} />
-            <Redirect to="/" />
+            {routes}{redirectRoute}
           </Switch>
         </LoadInitService>
       </Switch>
@@ -39,4 +31,4 @@ const Root = () => (
   </Router>
 );
 
-export default hot(module)(Root);
+export default Root;

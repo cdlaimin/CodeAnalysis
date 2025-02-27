@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022 THL A29 Limited
+// Copyright (c) 2021-2024 THL A29 Limited
 //
 // This source code file is made available under MIT License
 // See LICENSE for details
@@ -89,13 +89,12 @@ const reducer = (state: StateProps, action: ActionProps) => {
 };
 
 const StoreProvider = ({ children }: { children: any }) => {
-  // @ts-ignore
   const [state, dispatch] = useReducer(reducer, initialState);
 
   return (
-        <StateContext.Provider value={state}>
-            <DispatchContext.Provider value={dispatch}>{children}</DispatchContext.Provider>
-        </StateContext.Provider>
+    <StateContext.Provider value={state}>
+      <DispatchContext.Provider value={dispatch}>{children}</DispatchContext.Provider>
+    </StateContext.Provider>
   );
 };
 

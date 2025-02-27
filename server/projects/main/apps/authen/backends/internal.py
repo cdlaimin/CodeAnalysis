@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2021-2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -56,7 +56,7 @@ class ServerAPIAuthentication(BaseAuthentication):
             raise AuthenticationFailed({"code": self.FailedCodeEnum.TICKET_EXPIRED, "msg": "ticket过期"})
         elif sha256(ticket_string.encode("utf-8")).hexdigest().upper() != ticket_signature:
             raise AuthenticationFailed({"code": self.FailedCodeEnum.TICKET_INVALID, "msg": "鉴权失败"})
-        user = User.objects.get_or_create(username="codedog")[0]
+        user = User.objects.get_or_create(username=settings.DEFAULT_USERNAME)[0]
         CodeDogUserManager.get_codedog_user(user)
         return (user, None)
 

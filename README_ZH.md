@@ -6,15 +6,27 @@
     <em>代号：CodeDog</em>
 </p>
 
-[![license](https://img.shields.io/badge/License-MIT-brightgreen.svg?style=flat)](LICENSE) [![docs](https://img.shields.io/badge/docs-read-brightgreen.svg?style=flat)](https://tencent.github.io/CodeAnalysis/)
+[![license](https://img.shields.io/badge/License-MIT-brightgreen.svg?style=flat)](LICENSE.txt) [![docs](https://img.shields.io/badge/docs-read-brightgreen.svg?style=flat)](https://tencent.github.io/CodeAnalysis/)
 
-## TCA Github Pages
+[English](README.md) | [简体中文](README_ZH.md)
 
-[https://tencent.github.io/CodeAnalysis/](https://tencent.github.io/CodeAnalysis/)
+## TCA-官方
 
-## 工蜂代码库镜像
+[官方网址：https://tca.tencent.com](https://tca.tencent.com)
 
-[https://git.code.tencent.com/Tencent_Open_Source/CodeAnalysis.git](https://git.code.tencent.com/Tencent_Open_Source/CodeAnalysis.git)
+[官方介绍：https://cloud.tencent.com/product/tcap](https://cloud.tencent.com/product/tcap)
+
+## TCA-CNB代码库（境内）
+
+[境内开源：https://cnb.cool/tca/code-analysis](https://cnb.cool/tca/code-analysis)
+
+[境内开源：https://cnb.cool/tca](https://cnb.cool/tca)
+
+## TCA-Github代码库（境外）
+
+[境外开源：https://tencent.github.io/CodeAnalysis/](https://tencent.github.io/CodeAnalysis/)
+
+[境外开源：https://github.com/TCATools](https://github.com/TCATools)
 
 ## TCA
 
@@ -28,10 +40,6 @@
 
 ![流程图](https://tencent.github.io/CodeAnalysis/media/Flow.png)
 
-## 体验
-
-[官方版本](http://tca.tencent.com)
-
 ## 关键功能
 
 1. **语言支持**：支持 Java/C++/Objective-C/C#/JavaScript/Python/Go/PHP 等数十种语言，覆盖常用编程语言。
@@ -41,16 +49,17 @@
 
 ## 快速入门
 
-- [快速入门](https://tencent.github.io/CodeAnalysis/)
+- [快速部署](https://tencent.github.io/CodeAnalysis/zh/quickStarted/)
 - [如何使用TCA Action快速体验](https://github.com/TCATools/TCA-action/blob/main/README.md)
-- [如何在本地部署Server与Web](https://tencent.github.io/CodeAnalysis/zh/quickStarted/deploySever.html#通过源代码)
-- [如何通过Docker-Compose部署Server与Web](https://tencent.github.io/CodeAnalysis/zh/quickStarted/deploySever.html#通过docker-compose)
-- [如何使用客户端](https://tencent.github.io/CodeAnalysis/zh/quickStarted/deployClient.html)
-- [部署常见问题与解决方式](https://tencent.github.io/CodeAnalysis/zh/quickStarted/FAQ.html)
+- [如何使用客户端](https://tencent.github.io/CodeAnalysis/zh/guide/客户端/本地分析.html)
 
 ## 社区
 
 - 微信公众号：「腾讯云静态分析」，关注并发送“进群”即可加入官方开源交流微信群
+- 微信群金牌🏅服务群：
+
+    <img src='https://tencent.github.io/CodeAnalysis/media/WechatQRCode.png' width="200"/>
+
 - QQ交流群：361791391  
 - [GitHub讨论区](https://github.com/Tencent/CodeAnalysis/discussions)
 - [Wiki](https://github.com/Tencent/CodeAnalysis/wiki)
@@ -68,4 +77,8 @@
 
 ## 许可
 
-TCA 使用 [MIT 许可证](LICENSE)
+TCA 使用 [MIT 许可证](LICENSE.txt)
+
+### TCA 团队成员
+
+![腾讯云代码分析团队成员](https://tencent.github.io/CodeAnalysis/media/TeamMembers.png)

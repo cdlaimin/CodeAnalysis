@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022 THL A29 Limited
+// Copyright (c) 2021-2024 THL A29 Limited
 //
 // This source code file is made available under MIT License
 // See LICENSE for details
@@ -27,8 +27,6 @@ export default function fetch(url: string, options: any, absolutePath = false) {
   const contentType = get(options, 'headers.Content-Type');
 
   let headers: any = {
-    // 'API-TYPE': 'coding',
-    // 'CODING-PROJECT': get(window.reduxStore.getState(), 'APP.currentProject.id')
   };
 
   const tk = localStorage.getItem('accessToken');
@@ -43,7 +41,6 @@ export default function fetch(url: string, options: any, absolutePath = false) {
     };
   }
 
-  // @ts-ignore
   options.headers = appendXSRFTokenHeader(headers);
 
   return window.fetch(`${absolutePath ? '' : window.location.origin}${url}`, options);

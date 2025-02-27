@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2021-2022 THL A29 Limited
+# Copyright (c) 2021-2024 THL A29 Limited
 #
 # This source code file is made available under MIT License
 # See LICENSE for details
@@ -27,13 +27,12 @@ from rest_framework.views import APIView
 from apps.nodemgr import filters, models
 from apps.nodemgr.core import NodeManager
 from apps.nodemgr.serializers import base as serializers
-from apps.scan_conf.models import ToolProcessRelation
 from util.permissions import IsSuperUserOrReadOnly
 
 logger = logging.getLogger(__name__)
 
 
-class ExecTagListView(generics.ListCreateAPIView):
+class ExecTagListAPIView(generics.ListCreateAPIView):
     """标签列表
 
     ### GET
@@ -44,10 +43,12 @@ class ExecTagListView(generics.ListCreateAPIView):
     """
     permission_classes = [IsSuperUserOrReadOnly]
     serializer_class = serializers.ExecTagSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = filters.TagFilter
     queryset = models.ExecTag.objects.all()
 
 
-class ExecTagDetailView(generics.RetrieveUpdateAPIView):
+class ExecTagDetailAPIView(generics.RetrieveUpdateAPIView):
     """标签详情
 
     ### GET
@@ -62,7 +63,7 @@ class ExecTagDetailView(generics.RetrieveUpdateAPIView):
     lookup_url_kwarg = "tag_id"
 
 
-class NodeListView(generics.ListCreateAPIView):
+class NodeListAPIView(generics.ListCreateAPIView):
     serializer_class = serializers.NodeSerializer
     filter_backends = (OrderingFilter, DjangoFilterBackend,)
     filterset_class = filters.NodeFilter
@@ -71,10 +72,12 @@ class NodeListView(generics.ListCreateAPIView):
         if self.request.user.is_superuser is True:
             return models.Node.objects.all().order_by("name")
         else:
-            return models.Node.objects.filter(manager=self.request.user).order_by("name")
+            return models.Node.objects.filter(
+                Q(manager=self.request.user) | Q(related_managers=self.request.user)
+            ).order_by("name")
 
 
-class NodeOptionApiView(APIView):
+class NodeOptionAPIView(APIView):
     """node optionsj接口
 
     ### GET
@@ -91,7 +94,7 @@ class NodeOptionApiView(APIView):
         return Response(node_option_list)
 
 
-class NodeApiView(generics.RetrieveUpdateDestroyAPIView):
+class NodeDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     """
     ### GET
     应用场景：获取节点详情
@@ -119,7 +122,22 @@ class NodeApiView(generics.RetrieveUpdateDestroyAPIView):
             raise PermissionDenied()
 
 
-class NodeProcessesApiView(APIView):
+class NodeBatchUpdateAPIView(generics.GenericAPIView):
+    """节点批量更新接口
+    ### PUT
+    应用场景：修改节点详情
+    """
+    serializer_class = serializers.NodeBatchUpdateSerializer
+
+    def put(self, request, **kwargs):
+        slz = self.get_serializer(data=request.data)
+        slz.is_valid(raise_exception=True)
+        nodes = slz.validated_data.get("node_ids")
+        NodeManager.batch_update_node_detail(nodes, slz.validated_data)
+        return Response({"msg": "update success"})
+
+
+class NodeProcessesAPIView(generics.GenericAPIView):
     """
     ### GET
     应用场景：获取节点进程配置情况
@@ -128,38 +146,45 @@ class NodeProcessesApiView(APIView):
     应用场景：修改节点进程配置，参数为get所得参数格式，按需修改supported的值为true or false即可
     """
 
-    def get_node(self, request, node_id):
+    def get_node(self, request, **kwargs):
         """获取节点
         """
+        node_id = kwargs["node_id"]
         if request.user.is_superuser is True:
-            return get_object_or_404(models.Node, id=int(node_id))
+            return get_object_or_404(models.Node, id=node_id)
         else:
-            return get_object_or_404(models.Node, id=int(node_id), manager=request.user)
+            return get_object_or_404(models.Node, id=node_id, manager=request.user)
 
-    def get(self, request, node_id):
-        node = self.get_node(request, node_id)
-        result = {}
-        for tool_process in ToolProcessRelation.objects.all():
-            processes = result.get(tool_process.checktool.name, {})
-            processes.update({tool_process.process.name: {"supported": False}})
-            result.update({tool_process.checktool.name: processes})
-        for node_tool_process in models.NodeToolProcessRelation.objects.filter(node=node):
-            try:
-                result[node_tool_process.checktool.name][node_tool_process.process.name]["supported"] = True
-                result[node_tool_process.checktool.name][node_tool_process.process.name]["id"] = node_tool_process.id
-            except Exception as e:
-                logger.exception("[Tool: %s][Process: %s] err: %s" % (
-                    node_tool_process.checktool.name, node_tool_process.process.name, e))
-        return Response(result)
+    def get(self, request, **kwargs):
+        node = self.get_node(request, **kwargs)
+        all_processes = NodeManager.get_all_processes()
+        all_processes = NodeManager.get_support_process_relations(all_processes, node)
+        return Response(all_processes)
 
-    def put(self, request, node_id):
+    def put(self, request, **kwargs):
+        node = self.get_node(request, **kwargs)
         data = request.data
-        node = self.get_node(request, node_id)
         NodeManager.update_node_processes(node, data)
         return Response(data)
 
 
-class NodeTaskListApiView(generics.ListAPIView):
+class NodeProcessesBatchUpdateAPIView(generics.GenericAPIView):
+    """
+    ### PUT
+    应用场景：修改节点进程配置，参数为get所得参数格式，按需修改supported的值为true or false即可
+    """
+    serializer_class = serializers.NodeProcessesBatchUpdateSerializer
+
+    def put(self, request, **kwargs):
+        slz = self.get_serializer(data=request.data)
+        slz.is_valid(raise_exception=True)
+        nodes = slz.validated_data.get("node_ids")
+        processes = slz.validated_data.get("processes")
+        NodeManager.batch_update_node_processes(nodes, processes)
+        return Response(processes)
+
+
+class NodeTaskListAPIView(generics.ListAPIView):
     """
     ### GET
     应用场景：获取节点任务列表
@@ -169,5 +194,45 @@ class NodeTaskListApiView(generics.ListAPIView):
 
     def get_queryset(self):
         node_id = self.kwargs["node_id"]
-        node = get_object_or_404(models.Node, id=int(node_id))
+        node = get_object_or_404(models.Node, id=node_id)
         return node.task_set.all().order_by("-id")
+
+
+class AllProcessesAPIView(generics.GenericAPIView):
+    """
+    ### GET
+    应用场景：获取节点可配置进程列表
+    """
+
+    def get(self, request, **kwargs):
+        all_processes = NodeManager.get_all_processes()
+        return Response(all_processes)
+
+
+class TagProcessesAPIView(APIView):
+    """
+    ### GET
+    应用场景：获取标签进程配置情况
+
+    ### PUT
+    应用场景：修改标签进程配置，参数为get所得参数格式，按需修改supported的值为true or false即可
+    """
+    permission_classes = [IsAdminUser]
+
+    def get_tag(self, request, **kwargs):
+        """获取标签
+        """
+        tag_id = kwargs["tag_id"]
+        return get_object_or_404(models.ExecTag, id=tag_id)
+
+    def get(self, request, **kwargs):
+        tag = self.get_tag(request, **kwargs)
+        all_processes = NodeManager.get_all_processes()
+        all_processes = NodeManager.get_support_process_relations(all_processes, tag)
+        return Response(all_processes)
+
+    def put(self, request, **kwargs):
+        tag = self.get_tag(request, **kwargs)
+        data = request.data
+        NodeManager.update_tag_processes(tag, data)
+        return Response(data)

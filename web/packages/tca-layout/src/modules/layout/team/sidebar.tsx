@@ -1,12 +1,6 @@
-// Copyright (c) 2021-2022 THL A29 Limited
-//
-// This source code file is made available under MIT License
-// See LICENSE for details
-// ==============================================================================
-
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { t } from '@src/i18n/i18next';
+import { t } from '@src/utils/i18n';
 
 import Panel from 'coding-oa-uikit/lib/icon/Panel';
 import Group from 'coding-oa-uikit/lib/icon/Group';
@@ -14,22 +8,24 @@ import Project from 'coding-oa-uikit/lib/icon/Project';
 import Api from 'coding-oa-uikit/lib/icon/Api';
 import TeamOverview from 'coding-oa-uikit/lib/icon/TeamOverview';
 import Tiles from 'coding-oa-uikit/lib/icon/Tiles';
-import MenuLayout from '@src/components/menu-layout';
-import { API_DOC_PATH } from '@src/utils/getRoutePath';
+import Sitemap from 'coding-oa-uikit/lib/icon/Sitemap';
+import Template from 'coding-oa-uikit/lib/icon/Template';
+import LayoutMenu from '@src/component/layout-menu';
+import { getApiDocURL } from '@plat/util';
 
 const SideBar = () => {
   const { orgSid }: any = useParams();
 
-  const menus = [
+  const menus = useMemo(() => [
     {
-      icon: <Panel />,
+      icon: <Panel className='layoutMenuItemIcon' />,
       title: t('工作台'),
       link: `/t/${orgSid}/workspace`,
       key: 'workspace',
       regexMatch: /^\/t\/[^/]+\/workspace/i,
     },
     {
-      icon: <Project />,
+      icon: <Project className='layoutMenuItemIcon' />,
       title: t('项目'),
       link: `/t/${orgSid}/projects`,
       key: 'projects',
@@ -41,14 +37,14 @@ const SideBar = () => {
       divider: true,
     },
     {
-      icon: <TeamOverview />,
+      icon: <TeamOverview className='layoutMenuItemIcon' />,
       title: t('团队概览'),
       link: `/t/${orgSid}/profile`,
       key: 'profile',
       regexMatch: /^\/t\/[^/]+\/profile/i,
     },
     {
-      icon: <Group />,
+      icon: <Group className='layoutMenuItemIcon' />,
       title: t('团队成员'),
       link: `/t/${orgSid}/members`,
       key: 'members',
@@ -60,11 +56,9 @@ const SideBar = () => {
       divider: true,
     },
     {
-      icon: <Tiles />,
+      icon: <Tiles className='layoutMenuItemIcon' />,
       title: t('工具管理'),
-      link: `/t/${orgSid}/tools`,
       key: 'tools',
-      regexMatch: /^\/t\/[^/]+\/tools/i,
       childrens: [
         {
           title: t('工具列表'),
@@ -81,14 +75,27 @@ const SideBar = () => {
       ],
     },
     {
-      icon: <Api />,
+      icon: <Sitemap className='layoutMenuItemIcon' />,
+      title: t('节点管理'),
+      link: `/t/${orgSid}/nodes/`,
+      key: 'nodes',
+    },
+    {
+      icon: <Template className='layoutMenuItemIcon' />,
+      title: t('分析方案模板'),
+      link: `/t/${orgSid}/template`,
+      key: 'template',
+    },
+    {
+      icon: <Api className='layoutMenuItemIcon' />,
       title: t('开放平台'),
-      link: API_DOC_PATH,
+      link: getApiDocURL(),
       key: 'docs',
       open: true,
     },
-  ];
-  return <MenuLayout breakpoint="md" menus={menus} />;
+  ], [orgSid]);
+
+  return <LayoutMenu breakpoint="lg" menus={menus} />;
 };
 
 export default SideBar;

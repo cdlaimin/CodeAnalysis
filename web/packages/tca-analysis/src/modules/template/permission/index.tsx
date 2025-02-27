@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022 THL A29 Limited
+// Copyright (c) 2021-2024 THL A29 Limited
 //
 // This source code file is made available under MIT License
 // See LICENSE for details
@@ -8,23 +8,18 @@
  * 分析方案模板 - 权限配置
  */
 import React, { useState, useEffect } from 'react';
-import cn from 'classnames';
 import { uniqBy } from 'lodash';
 
-import { Form, Tooltip, Button, message, Select, Switch } from 'coding-oa-uikit';
-import QuestionCircle from 'coding-oa-uikit/lib/icon/QuestionCircle';
+import { Form, Button, message, Select, Switch, SubmitContext } from 'tdesign-react';
+import FormLabelWithHelp from '@src/components/title-with-help';
 
 import { getPermConf, updatePermConf } from '@src/services/template';
 import { getOrgMembers } from '@src/services/common';
+import { TMPL_SCHEME_PERM_OPEN_LABEL } from '@plat/modules';
 
-import formStyle from '../style.scss';
 import style from './style.scss';
 
-const layout = {
-  labelCol: { span: 6 },
-  wrapperCol: { span: 18 },
-  colon: false,
-};
+const { FormItem } = Form;
 
 interface PermissionProps {
   orgSid: string;
@@ -45,120 +40,95 @@ const Permission = (props: PermissionProps) => {
         setTeamMembers(uniqBy([...admins, ...users], 'username'));
       });
     }
-  }, []);
+  }, [orgSid]);
 
   useEffect(() => {
     getPermConf(orgSid, tmplId).then((response) => {
       setData(response);
-      form.resetFields();
+      const formData = {
+        ...response,
+        execute_scope: response.execute_scope === 1,
+        edit_managers_list: response.edit_managers?.map((item: any) => item.username),
+        execute_managers_list: response.execute_managers?.map((item: any) => item.username),
+      };
+      form.setFieldsValue(formData);
     });
-  }, [tmplId]);
+  }, [orgSid, tmplId, form]);
 
-  const onFinish = (formData: any) => {
-    updatePermConf(orgSid, tmplId, {
-      ...formData,
-      execute_scope: formData.execute_scope ? 1 : 2, // 1 公开，2 私有
-    }).then((response) => {
-      message.success('更新成功');
-      setData(response);
-      // form.resetFields();
-    });
+  const onFinish = (context: SubmitContext<FormData>) => {
+    if (context.validateResult === true) {
+      const formData = form.getFieldsValue(true);
+      updatePermConf(orgSid, tmplId, {
+        ...formData,
+        execute_scope: formData.execute_scope ? 1 : 2, // 1 公开，2 私有
+      }).then((response) => {
+        message.success('更新成功');
+        setData(response);
+      });
+    }
   };
 
   return (
-        <Form
-            labelAlign="left"
-            className={cn(formStyle.schemeFormVertical, style.permissionForm)}
-            form={form}
-            initialValues={{
-              execute_scope: data.execute_scope === 1,
-              edit_managers_list: data.edit_managers?.map((item: any) => item.username),
-              execute_managers_list: data.execute_managers?.map((item: any) => item.username),
-            }}
-            onFinish={onFinish}
-        >
-            <Form.Item
-                {...layout}
-                label="是否团队内公开"
-                name="execute_scope"
-                valuePropName="checked"
-            >
-                <Switch />
-            </Form.Item>
-            <Form.Item
-                {...layout}
-                name="edit_managers_list"
-                label={
-                    <span>
-                        管理员
-                        <Tooltip
-                            // @ts-ignore
-                            getPopupContainer={() => document.getElementById('main-container')}
-                            title="拥有模板编辑权限"
-                        >
-                            <QuestionCircle className={formStyle.questionIcon} />
-                        </Tooltip>
-                    </span>
-                }
-            >
-                <Select
-                    showSearch
-                    mode="multiple"
-                    disabled={isSysTmpl}
-                    optionFilterProp="label"
-                    // @ts-ignore
-                    getPopupContainer={() => document.getElementById('main-container')}
-                    options={teamMembers.map((item: any) => ({
-                      label: item.nickname,
-                      value: item.username,
-                    }))}
-                />
-            </Form.Item>
-
-            <Form.Item
-                {...layout}
-                name="execute_managers_list"
-                label={
-                    <span>
-                        普通成员
-                        <Tooltip
-                            // @ts-ignore
-                            getPopupContainer={() => document.getElementById('main-container')}
-                            title="可使用模板"
-                        >
-                            <QuestionCircle className={formStyle.questionIcon} />
-                        </Tooltip>
-                    </span>
-                }
-            >
-                <Select
-                    showSearch
-                    mode="multiple"
-                    disabled={isSysTmpl}
-                    optionFilterProp="label"
-                    // @ts-ignore
-                    getPopupContainer={() => document.getElementById('main-container')}
-                    options={teamMembers.map((item: any) => ({
-                      label: item.nickname,
-                      value: item.username,
-                    }))}
-                />
-            </Form.Item>
-            {!isSysTmpl && (
-                <Form.Item style={{ marginTop: 30 }}>
-                    <Button type="primary" htmlType="submit" style={{ marginRight: 10 }}>
-                        保存
-                    </Button>
-                    <Button
-                        onClick={() => {
-                          form.resetFields();
-                        }}
-                    >
-                        取消
-                    </Button>
-                </Form.Item>
-            )}
-        </Form>
+    <Form
+      labelAlign="left"
+      className={style.permissionForm}
+      form={form}
+      initialData={{
+        execute_scope: data.execute_scope === 1,
+        edit_managers_list: data.edit_managers?.map((item: any) => item.username),
+        execute_managers_list: data.execute_managers?.map((item: any) => item.username),
+      }}
+      resetType='initial'
+      onSubmit={onFinish}
+      labelWidth={160}
+    >
+      <FormItem
+        label={TMPL_SCHEME_PERM_OPEN_LABEL}
+        name="execute_scope"
+      >
+        <Switch />
+      </FormItem>
+      <FormItem
+        name="edit_managers_list"
+        label={<FormLabelWithHelp labelString='管理员' helpInfo='拥有模板编辑权限' />}
+      >
+        <Select
+          showArrow
+          multiple
+          readonly={isSysTmpl}
+          options={teamMembers.map((item: any) => ({
+            label: item.nickname,
+            value: item.username,
+          }))}
+          filterable
+        />
+      </FormItem>
+      <FormItem
+        name="execute_managers_list"
+        label={<FormLabelWithHelp labelString='普通成员' helpInfo='可使用模板' />}
+      >
+        <Select
+          showArrow
+          multiple
+          readonly={isSysTmpl}
+          options={teamMembers.map((item: any) => ({
+            label: item.nickname,
+            value: item.username,
+          }))}
+          filterable
+        />
+      </FormItem>
+      {!isSysTmpl && (
+        <FormItem style={{ marginTop: 30 }}>
+          <Button theme="primary" type="submit" style={{ marginRight: 10 }}>
+            保存
+          </Button>
+          <Button theme='default' type='reset'>
+            取消
+          </Button>
+        </FormItem>
+      )}
+    </Form>
   );
 };
 
